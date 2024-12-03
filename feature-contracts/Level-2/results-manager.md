@@ -4,6 +4,7 @@ Input:
 - Optimization results
 - Performance metrics
 - Configuration metadata
+
 Output:
 - JSON results file
 - Performance reports
