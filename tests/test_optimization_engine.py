@@ -138,6 +138,12 @@ class TestOptimizationEngine(unittest.TestCase):
 
     def test_parallel_trials(self):
         """Test parallel trial execution functionality."""
+        # Define a simple objective function that doesn't rely on class attributes
+        def simple_objective(params):
+            x = params["x"]
+            y = params["y"]
+            return x**2 + y**2, {"distance": np.sqrt(x**2 + y**2)}
+
         optimizer = OptimizationEngine(
             parameter_space=self.parameter_space,
             optimization_settings=self.optimization_settings,
@@ -152,7 +158,7 @@ class TestOptimizationEngine(unittest.TestCase):
         
         results = optimizer.run_parallel_trials(
             params_list=params_list,
-            objective_function=self.objective_function
+            objective_function=simple_objective
         )
         
         self.assertEqual(len(results), 3)

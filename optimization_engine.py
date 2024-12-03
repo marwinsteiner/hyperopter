@@ -286,32 +286,25 @@ class OptimizationEngine:
         Returns:
             List of TrialResult objects
         """
+        def _run_single_trial(params):
+            try:
+                result = objective_function(params)
+                if isinstance(result, tuple):
+                    value, metrics = result
+                else:
+                    value = result
+                    metrics = {}
+                return TrialResult(params=params, value=value, metrics=metrics)
+            except Exception as e:
+                self.logger.error(f"Trial error with params {params}: {str(e)}")
+                return None
+
         results = []
-        with concurrent.futures.ProcessPoolExecutor(
+        with concurrent.futures.ThreadPoolExecutor(
             max_workers=min(self.optimization_settings.parallel_trials, len(params_list))
         ) as executor:
-            future_to_params = {
-                executor.submit(objective_function, params): params
-                for params in params_list
-            }
-            
-            for future in concurrent.futures.as_completed(future_to_params):
-                params = future_to_params[future]
-                try:
-                    result = future.result()
-                    if isinstance(result, tuple):
-                        value, metrics = result
-                    else:
-                        value = result
-                        metrics = {}
-                        
-                    results.append(TrialResult(
-                        params=params,
-                        value=value,
-                        metrics=metrics
-                    ))
-                except Exception as e:
-                    self.logger.error(f"Trial error with params {params}: {str(e)}")
+            future_results = list(executor.map(_run_single_trial, params_list))
+            results = [r for r in future_results if r is not None]
                     
         return results
 
