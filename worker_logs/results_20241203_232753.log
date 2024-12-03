@@ -1,0 +1,27 @@
+2024-12-03T23:27:53.559792+0000 - INFO - Initialized results manager
+2024-12-03T23:27:53.561023+0000 - INFO - Initialized parallel optimizer with 4 workers
+2024-12-03T23:27:54.171037+0000 - INFO - Initialized memory manager
+2024-12-03T23:27:54.180562+0000 - INFO - Initialized results manager
+2024-12-03T23:27:54.181558+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-03T23:27:54.182577+0000 - INFO - Starting continuous memory monitoring
+2024-12-03T23:27:54.189538+0000 - WARNING - Memory usage high, initiating cleanup
+2024-12-03T23:27:54.262910+0000 - WARNING - Memory cleanup completed but usage still high
+2024-12-03T23:28:54.273375+0000 - WARNING - Memory usage high, initiating cleanup
+2024-12-03T23:28:54.324051+0000 - WARNING - Memory cleanup completed but usage still high
+2024-12-03T23:29:54.659013+0000 - ERROR - System memory usage (93.8%) exceeds limit (90.0%)
+2024-12-03T23:29:54.710131+0000 - ERROR - Continuous monitoring failed: System memory usage (93.8%) exceeds limit (90.0%)
+2024-12-03T23:29:54.710663+0000 - ERROR - Optimization failed: Continuous monitoring failed: System memory usage (93.8%) exceeds limit (90.0%)
+2024-12-03T23:29:54.723617+0000 - INFO - Stopped memory monitoring
+2024-12-03T23:29:58.711482+0000 - INFO - Initialized memory manager
+2024-12-03T23:29:58.743395+0000 - INFO - Initialized results manager
+2024-12-03T23:29:58.745390+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-03T23:29:58.761348+0000 - INFO - Starting continuous memory monitoring
+2024-12-03T23:29:59.075515+0000 - ERROR - System memory usage (93.8%) exceeds limit (90.0%)
+2024-12-03T23:29:59.078500+0000 - ERROR - Continuous monitoring failed: System memory usage (93.8%) exceeds limit (90.0%)
+2024-12-03T23:29:59.079499+0000 - ERROR - Optimization failed: Continuous monitoring failed: System memory usage (93.8%) exceeds limit (90.0%)
+2024-12-03T23:29:59.163371+0000 - INFO - Stopped memory monitoring
+2024-12-03T23:30:00.641980+0000 - INFO - Initialized memory manager
+2024-12-03T23:30:00.663916+0000 - INFO - Initialized results manager
+2024-12-03T23:30:00.670898+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-03T23:30:00.688852+0000 - INFO - Worker setup complete
+2024-12-03T23:30:00.689847+0000 - INFO - Worker cleanup started
