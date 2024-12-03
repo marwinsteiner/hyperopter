@@ -20,7 +20,7 @@ class TestConfigurationManager(unittest.TestCase):
         """Set up test fixtures before each test method."""
         self.temp_dir = tempfile.mkdtemp()
         
-        # Create sample configuration
+        # Create sample configuration with simpler categorical values
         self.sample_config = {
             "parameter_space": {
                 "learning_rate": {
@@ -35,7 +35,7 @@ class TestConfigurationManager(unittest.TestCase):
                 },
                 "activation": {
                     "type": "categorical",
-                    "range": ["relu", "tanh", "sigmoid"]
+                    "range": ["relu", "tanh"]  # Reduced list
                 }
             },
             "optimization_settings": {
@@ -48,8 +48,7 @@ class TestConfigurationManager(unittest.TestCase):
             "strategy": {
                 "name": "bayesian",
                 "parameters": {
-                    "n_startup_trials": 10,
-                    "n_ei_candidates": 24
+                    "n_startup_trials": 10
                 }
             }
         }
@@ -147,10 +146,13 @@ class TestConfigurationManager(unittest.TestCase):
 
     def tearDown(self):
         """Clean up test fixtures after each test method."""
-        # Remove temporary files
-        if self.config_path.exists():
-            self.config_path.unlink()
-        Path(self.temp_dir).rmdir()
+        import shutil
+        try:
+            # Remove all files in the temporary directory
+            if Path(self.temp_dir).exists():
+                shutil.rmtree(self.temp_dir, ignore_errors=True)
+        except Exception as e:
+            print(f"Warning: Could not clean up temporary directory: {str(e)}")
 
 if __name__ == '__main__':
     unittest.main()

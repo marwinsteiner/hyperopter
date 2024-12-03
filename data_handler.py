@@ -147,7 +147,10 @@ class DataHandler:
             for step, params in self.preprocessing_specs.items():
                 if step == "normalize":
                     for col in params["columns"]:
-                        processed_df[col] = (processed_df[col] - processed_df[col].mean()) / processed_df[col].std()
+                        mean = processed_df[col].mean()
+                        std = processed_df[col].std()
+                        if std != 0:  # Avoid division by zero
+                            processed_df[col] = (processed_df[col] - mean) / std
                 elif step == "encode_categorical":
                     for col in params["columns"]:
                         processed_df[col] = pd.Categorical(processed_df[col]).codes

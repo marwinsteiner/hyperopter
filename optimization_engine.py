@@ -174,15 +174,15 @@ class OptimizationEngine:
             if config["type"] == "int":
                 params[param] = trial.suggest_int(
                     param,
-                    config["range"][0],
-                    config["range"][1],
+                    int(config["range"][0]),
+                    int(config["range"][1]),
                     step=config.get("step", 1)
                 )
             elif config["type"] == "float":
                 params[param] = trial.suggest_float(
                     param,
-                    config["range"][0],
-                    config["range"][1],
+                    float(config["range"][0]),
+                    float(config["range"][1]),
                     step=config.get("step")
                 )
             else:  # categorical
@@ -288,7 +288,7 @@ class OptimizationEngine:
         """
         results = []
         with concurrent.futures.ProcessPoolExecutor(
-            max_workers=self.optimization_settings.parallel_trials
+            max_workers=min(self.optimization_settings.parallel_trials, len(params_list))
         ) as executor:
             future_to_params = {
                 executor.submit(objective_function, params): params

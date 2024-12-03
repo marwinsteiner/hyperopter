@@ -67,7 +67,19 @@ class ConfigurationManager:
                     "required": ["type", "range"],
                     "properties": {
                         "type": {"type": "string", "enum": ["int", "float", "categorical"]},
-                        "range": {"type": "array", "minItems": 2, "maxItems": 2},
+                        "range": {
+                            "oneOf": [
+                                {
+                                    "type": "array",
+                                    "items": {"type": ["number", "string"]},
+                                    "minItems": 2
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {"type": "string"}
+                                }
+                            ]
+                        },
                         "step": {"type": "number"}
                     }
                 }

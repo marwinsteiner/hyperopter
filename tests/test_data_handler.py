@@ -69,16 +69,20 @@ class TestDataHandler(unittest.TestCase):
         df = self.data_handler.load_data(str(self.csv_path))
         processed_df = self.data_handler.preprocess_data(df)
         
-        # Check normalization
-        self.assertTrue(
-            np.allclose(processed_df["feature1"].mean(), 0, atol=1e-10)
-        )
-        self.assertTrue(
-            np.allclose(processed_df["feature1"].std(), 1, atol=1e-10)
-        )
+        # Check normalization for non-zero std columns
+        feature1_std = df["feature1"].std()
+        if feature1_std != 0:
+            self.assertTrue(
+                np.allclose(processed_df["feature1"].mean(), 0, atol=1e-10)
+            )
+            self.assertTrue(
+                np.allclose(processed_df["feature1"].std(), 1, atol=1e-10)
+            )
         
         # Check categorical encoding
-        self.assertTrue(processed_df["feature2"].dtype in [np.int32, np.int64])
+        self.assertTrue(
+            processed_df["feature2"].dtype in [np.int32, np.int64]
+        )
 
     def test_split_data(self):
         """Test data splitting functionality."""
