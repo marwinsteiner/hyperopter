@@ -58,21 +58,20 @@ class ConfigurationManager:
     # Default schema for configuration validation
     DEFAULT_SCHEMA = {
         "type": "object",
-        "required": ["parameter_space", "optimization_settings", "strategy"],
         "properties": {
             "parameter_space": {
                 "type": "object",
                 "additionalProperties": {
                     "type": "object",
-                    "required": ["type", "range"],
                     "properties": {
                         "type": {"type": "string", "enum": ["int", "float", "categorical"]},
                         "range": {
                             "oneOf": [
                                 {
                                     "type": "array",
-                                    "items": {"type": ["number", "string"]},
-                                    "minItems": 2
+                                    "items": {"type": "number"},
+                                    "minItems": 2,
+                                    "maxItems": 2
                                 },
                                 {
                                     "type": "array",
@@ -80,31 +79,31 @@ class ConfigurationManager:
                                 }
                             ]
                         },
-                        "step": {"type": "number"}
-                    }
+                        "step": {"type": "number", "optional": True}
+                    },
+                    "required": ["type", "range"]
                 }
             },
             "optimization_settings": {
                 "type": "object",
-                "required": ["max_iterations", "convergence_threshold", "parallel_trials"],
                 "properties": {
                     "max_iterations": {"type": "integer", "minimum": 1},
                     "convergence_threshold": {"type": "number", "minimum": 0},
-                    "timeout_seconds": {"type": "integer", "minimum": 1},
                     "parallel_trials": {"type": "integer", "minimum": 1},
                     "random_seed": {"type": "integer"}
-                }
+                },
+                "required": ["max_iterations", "convergence_threshold", "parallel_trials"]
             },
             "strategy": {
                 "type": "object",
-                "required": ["name", "parameters"],
                 "properties": {
-                    "name": {"type": "string", "enum": ["bayesian", "grid_search", "random_search", "evolutionary"]},
-                    "parameters": {"type": "object"},
-                    "constraints": {"type": "object"}
-                }
+                    "name": {"type": "string"},
+                    "parameters": {"type": "object"}
+                },
+                "required": ["name", "parameters"]
             }
-        }
+        },
+        "required": ["parameter_space", "optimization_settings", "strategy"]
     }
 
     def __init__(self, schema_path: Optional[str] = None):
