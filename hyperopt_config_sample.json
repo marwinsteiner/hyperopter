@@ -1,0 +1,25 @@
+{
+    "parameter_space": {
+        "param1": {
+            "type": "float",
+            "range": [0.0, 1.0],
+            "step": 0.1
+        },
+        "param2": {
+            "type": "categorical",
+            "range": ["option1", "option2"]
+        }
+    },
+    "optimization_settings": {
+        "max_iterations": 100,
+        "convergence_threshold": 0.001,
+        "parallel_trials": 4,
+        "random_seed": 42
+    },
+    "strategy": {
+        "name": "bayesian",
+        "parameters": {
+            "acquisition_function": "ei"
+        }
+    }
+}
