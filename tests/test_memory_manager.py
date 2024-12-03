@@ -3,6 +3,9 @@
 import unittest
 from datetime import datetime
 import gc
+import os
+import time
+import threading
 
 import psutil
 from loguru import logger
@@ -156,3 +159,64 @@ class TestMemoryManager(unittest.TestCase):
         # Reset and verify
         self.memory_manager.reset_metrics()
         self.assertEqual(len(self.memory_manager.usage_history), 0)
+
+    def test_monitor_optimization_engine(self):
+        """Test optimization engine monitoring."""
+        # Test monitoring current process
+        metrics = self.memory_manager.monitor_optimization_engine()
+        self.assertIn("rss", metrics)
+        self.assertIn("vms", metrics)
+        self.assertIn("percent", metrics)
+        self.assertIn("num_threads", metrics)
+        self.assertIn("cpu_percent", metrics)
+        
+        # Test monitoring invalid PID
+        with self.assertRaises(MemoryError):
+            self.memory_manager.monitor_optimization_engine(999999)
+            
+    def test_coordinate_parallel_workers(self):
+        """Test parallel worker coordination."""
+        # Test with no workers
+        with self.assertRaises(MemoryError):
+            self.memory_manager.coordinate_parallel_workers([])
+            
+        # Test with current process as worker
+        current_pid = os.getpid()
+        result = self.memory_manager.coordinate_parallel_workers([current_pid])
+        
+        self.assertIn("worker_metrics", result)
+        self.assertIn("actions_needed", result)
+        self.assertEqual(result["total_workers"], 1)
+        self.assertIn(current_pid, result["worker_metrics"])
+        
+        # Test with invalid PID
+        result = self.memory_manager.coordinate_parallel_workers([999999])
+        self.assertEqual(result["worker_metrics"][999999]["status"], "not_found")
+        
+    def test_continuous_monitoring(self):
+        """Test continuous monitoring functionality."""
+        # Start monitoring in a separate thread
+        import threading
+        stop_event = threading.Event()
+        
+        def monitor_thread():
+            try:
+                self.memory_manager.start_continuous_monitoring()
+            except Exception:
+                pass
+            finally:
+                stop_event.set()
+                
+        thread = threading.Thread(target=monitor_thread)
+        thread.daemon = True
+        thread.start()
+        
+        # Let it run briefly
+        time.sleep(0.1)
+        
+        # Stop monitoring
+        self.memory_manager.stop_monitoring()
+        stop_event.wait(timeout=1.0)
+        
+        # Verify monitoring was active
+        self.assertGreater(len(self.memory_manager.usage_history), 0)

@@ -200,3 +200,72 @@ class ResultsManager:
         self.results_data = pd.DataFrame()
         self.config_metadata = {}
         logger.info("Cleared all results data")
+        
+    def add_batch_results(self, batch_results: List[Dict[str, Any]]) -> None:
+        """
+        Add results from a batch of parallel optimization trials.
+        
+        Args:
+            batch_results: List of dictionaries containing trial results
+            
+        Raises:
+            InvalidResultsError: If batch results are invalid
+        """
+        if not batch_results:
+            raise InvalidResultsError("Batch results cannot be empty")
+            
+        for result in batch_results:
+            if not all(k in result for k in ["trial_id", "parameters", "metrics"]):
+                raise InvalidResultsError("Invalid result format in batch")
+                
+            self.add_optimization_result(
+                trial_id=result["trial_id"],
+                parameters=result["parameters"],
+                metrics=result["metrics"]
+            )
+            
+        logger.info(f"Added batch of {len(batch_results)} results")
+        
+    def export_for_ci(self, output_file: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
+        """
+        Export results in a CI/CD friendly format.
+        
+        Args:
+            output_file: Optional path to save the CI report
+            
+        Returns:
+            Dictionary containing CI-friendly results summary
+            
+        Raises:
+            InvalidResultsError: If export fails
+        """
+        if self.results_data.empty:
+            raise InvalidResultsError("No results available for CI export")
+            
+        # Generate CI report
+        ci_report = {
+            "status": "success",
+            "timestamp": datetime.now().isoformat(),
+            "summary": self.generate_summary(),
+            "metrics": {
+                "total_trials": len(self.results_data),
+                "best_result": float(self.results_data["result"].min()),
+                "completion_rate": 1.0  # Can be updated based on failed trials
+            },
+            "metadata": self.config_metadata,
+            "artifacts": []
+        }
+        
+        # Export results if path provided
+        if output_file:
+            output_path = Path(output_file)
+            try:
+                with open(output_path, 'w') as f:
+                    json.dump(ci_report, f, indent=2, default=str)
+                ci_report["artifacts"].append(str(output_path))
+                logger.info(f"Exported CI report to {output_path}")
+            except Exception as e:
+                logger.error(f"Failed to export CI report: {str(e)}")
+                raise InvalidResultsError(f"Failed to export CI report: {str(e)}")
+                
+        return ci_report

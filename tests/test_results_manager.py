@@ -154,3 +154,56 @@ class TestResultsManager(unittest.TestCase):
         self.results_manager.clear_results()
         self.assertTrue(self.results_manager.results_data.empty)
         self.assertEqual(self.results_manager.config_metadata, {})
+
+    def test_add_batch_results(self):
+        """Test adding batch results."""
+        # Prepare batch results
+        batch_results = [
+            {
+                "trial_id": i,
+                "parameters": {"learning_rate": 0.01 * i},
+                "metrics": {"accuracy": 0.9 + 0.01 * i}
+            }
+            for i in range(3)
+        ]
+        
+        # Test valid batch
+        self.results_manager.add_batch_results(batch_results)
+        self.assertEqual(len(self.results_manager.results_data), 3)
+        
+        # Test empty batch
+        with self.assertRaises(InvalidResultsError):
+            self.results_manager.add_batch_results([])
+            
+        # Test invalid batch format
+        invalid_batch = [{"trial_id": 1}]  # Missing required fields
+        with self.assertRaises(InvalidResultsError):
+            self.results_manager.add_batch_results(invalid_batch)
+            
+    def test_export_for_ci(self):
+        """Test CI/CD export functionality."""
+        # Add sample results
+        self.results_manager.add_optimization_result(
+            1, {"param": 1}, {"accuracy": 0.95, "result": 0.95}
+        )
+        self.results_manager.add_config_metadata({"strategy": "random"})
+        
+        # Test CI export without file
+        ci_report = self.results_manager.export_for_ci()
+        self.assertEqual(ci_report["status"], "success")
+        self.assertEqual(ci_report["metrics"]["total_trials"], 1)
+        self.assertIn("metadata", ci_report)
+        
+        # Test CI export with file
+        temp_file = Path(self.temp_dir) / "ci_report.json"
+        ci_report = self.results_manager.export_for_ci(temp_file)
+        self.assertTrue(temp_file.exists())
+        self.assertIn(str(temp_file), ci_report["artifacts"])
+        
+        # Test export with no results
+        self.results_manager.clear_results()
+        with self.assertRaises(InvalidResultsError):
+            self.results_manager.export_for_ci()
+
+if __name__ == "__main__":
+    unittest.main()

@@ -6,6 +6,7 @@ import psutil
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Union, Tuple
+import time
 
 from loguru import logger
 
@@ -215,3 +216,147 @@ class MemoryManager:
         self.usage_history.clear()
         gc.collect()
         logger.info("Reset memory metrics and history")
+
+    def monitor_optimization_engine(self, engine_pid: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Monitor memory usage of the optimization engine process.
+        
+        Args:
+            engine_pid: Process ID of the optimization engine (if different from current)
+            
+        Returns:
+            Dictionary containing engine-specific memory metrics
+            
+        Raises:
+            MemoryError: If engine process cannot be monitored
+        """
+        try:
+            # Get process to monitor
+            process = psutil.Process(engine_pid) if engine_pid else self.process
+            
+            # Get memory info
+            memory_info = process.memory_info()
+            memory_percent = process.memory_percent()
+            
+            # Get additional process metrics
+            metrics = {
+                "rss": memory_info.rss / self.total_memory,
+                "vms": memory_info.vms / self.total_memory,
+                "percent": memory_percent / 100,  # Convert to fraction
+                "num_threads": process.num_threads(),
+                "cpu_percent": process.cpu_percent()
+            }
+            
+            logger.info(f"Optimization engine memory usage: {metrics['percent']:.1%}")
+            return metrics
+            
+        except Exception as e:
+            logger.error(f"Failed to monitor optimization engine: {str(e)}")
+            raise MemoryError(f"Failed to monitor optimization engine: {str(e)}")
+            
+    def coordinate_parallel_workers(self, 
+                                  worker_pids: List[int],
+                                  memory_per_worker: float = 0.2) -> Dict[str, Any]:
+        """
+        Monitor and coordinate memory usage across parallel workers.
+        
+        Args:
+            worker_pids: List of worker process IDs
+            memory_per_worker: Maximum memory fraction per worker
+            
+        Returns:
+            Dictionary containing worker memory status and actions
+            
+        Raises:
+            MemoryError: If worker coordination fails
+        """
+        if not worker_pids:
+            raise MemoryError("No worker PIDs provided")
+            
+        try:
+            worker_metrics = {}
+            actions_needed = []
+            
+            # Monitor each worker
+            for pid in worker_pids:
+                try:
+                    process = psutil.Process(pid)
+                    memory_percent = process.memory_percent() / 100  # Convert to fraction
+                    
+                    worker_metrics[pid] = {
+                        "memory_percent": memory_percent,
+                        "status": "ok" if memory_percent < memory_per_worker else "high"
+                    }
+                    
+                    # Check if worker needs cleanup
+                    if memory_percent >= memory_per_worker:
+                        actions_needed.append({
+                            "pid": pid,
+                            "action": "cleanup",
+                            "current_usage": memory_percent
+                        })
+                        
+                except psutil.NoSuchProcess:
+                    worker_metrics[pid] = {"status": "not_found"}
+                    
+            # Log status
+            active_workers = sum(1 for m in worker_metrics.values() if m.get("status") == "ok")
+            logger.info(f"Monitoring {len(worker_pids)} workers, {active_workers} within limits")
+            
+            return {
+                "timestamp": datetime.now(),
+                "worker_metrics": worker_metrics,
+                "actions_needed": actions_needed,
+                "total_workers": len(worker_pids),
+                "active_workers": active_workers
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to coordinate parallel workers: {str(e)}")
+            raise MemoryError(f"Failed to coordinate parallel workers: {str(e)}")
+            
+    def start_continuous_monitoring(self, 
+                                  engine_pid: Optional[int] = None,
+                                  worker_pids: Optional[List[int]] = None) -> None:
+        """
+        Start continuous memory monitoring for optimization processes.
+        
+        Args:
+            engine_pid: Optional optimization engine process ID
+            worker_pids: Optional list of worker process IDs
+            
+        Raises:
+            MemoryError: If monitoring cannot be started
+        """
+        if self.is_monitoring:
+            logger.warning("Monitoring already active")
+            return
+            
+        self.is_monitoring = True
+        logger.info("Starting continuous memory monitoring")
+        
+        try:
+            while self.is_monitoring:
+                # Monitor main process
+                self.monitor_memory()
+                
+                # Monitor optimization engine if specified
+                if engine_pid:
+                    self.monitor_optimization_engine(engine_pid)
+                    
+                # Monitor workers if specified
+                if worker_pids:
+                    self.coordinate_parallel_workers(worker_pids)
+                    
+                # Wait for next interval
+                time.sleep(self.monitoring_interval)
+                
+        except Exception as e:
+            self.is_monitoring = False
+            logger.error(f"Continuous monitoring failed: {str(e)}")
+            raise MemoryError(f"Continuous monitoring failed: {str(e)}")
+            
+    def stop_monitoring(self) -> None:
+        """Stop continuous memory monitoring."""
+        self.is_monitoring = False
+        logger.info("Stopped memory monitoring")

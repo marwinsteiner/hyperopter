@@ -4,6 +4,7 @@ Input:
 - Workload specifications
 - Worker count
 - Batch size settings
+
 Output:
 - Distributed tasks
 - Collected results
