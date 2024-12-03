@@ -72,18 +72,31 @@ class TestConfigurationManager(unittest.TestCase):
 
     def test_validate_schema(self):
         """Test schema validation functionality."""
-        # Should not raise any exceptions
+        # Test valid configuration
         self.config_manager.load_configuration(str(self.config_path))
         
-        # Test with invalid configuration
-        invalid_config = self.sample_config.copy()
-        del invalid_config["parameter_space"]
+        # Test with missing required field
+        invalid_config = {
+            "optimization_settings": {
+                "max_iterations": 100,
+                "convergence_threshold": 0.001,
+                "parallel_trials": 4,
+                "random_seed": 42
+            },
+            "strategy": {
+                "name": "bayesian",
+                "parameters": {"n_startup_trials": 10}
+            }
+        }
+        
         invalid_path = Path(self.temp_dir) / "invalid_config.json"
         with open(invalid_path, 'w') as f:
             json.dump(invalid_config, f)
-            
-        with self.assertRaises(SchemaValidationError):
+        
+        with self.assertRaises(ConfigurationError) as context:
             self.config_manager.load_configuration(str(invalid_path))
+        
+        self.assertIn("parameter_space", str(context.exception))
 
     def test_validate_parameter_ranges(self):
         """Test parameter range validation functionality."""

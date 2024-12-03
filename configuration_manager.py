@@ -79,7 +79,7 @@ class ConfigurationManager:
                                 }
                             ]
                         },
-                        "step": {"type": "number", "optional": True}
+                        "step": {"type": "number"}
                     },
                     "required": ["type", "range"]
                 }

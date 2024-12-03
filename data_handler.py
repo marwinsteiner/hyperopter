@@ -129,38 +129,27 @@ class DataHandler:
 
     def preprocess_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Apply preprocessing steps according to specifications.
+        Preprocess the data by normalizing numerical features and encoding categorical features.
         
         Args:
-            df: Input DataFrame to preprocess
+            df: Input DataFrame
             
         Returns:
             Preprocessed DataFrame
-            
-        Raises:
-            DataPreprocessingError: If preprocessing fails
         """
-        try:
-            processed_df = df.copy()
-            
-            # Apply preprocessing steps
-            for step, params in self.preprocessing_specs.items():
-                if step == "normalize":
-                    for col in params["columns"]:
-                        mean = processed_df[col].mean()
-                        std = processed_df[col].std()
-                        if std != 0:  # Avoid division by zero
-                            processed_df[col] = (processed_df[col] - mean) / std
-                elif step == "encode_categorical":
-                    for col in params["columns"]:
-                        processed_df[col] = pd.Categorical(processed_df[col]).codes
-                        
-            self.logger.info("Data preprocessing completed successfully")
-            return processed_df
-            
-        except Exception as e:
-            self.logger.error(f"Preprocessing error: {str(e)}")
-            raise DataPreprocessingError(str(e))
+        processed_df = df.copy()
+        
+        for column in processed_df.columns:
+            if processed_df[column].dtype in [np.float64, np.float32, np.int64, np.int32]:
+                # Normalize numerical features
+                std = processed_df[column].std()
+                if std != 0:
+                    processed_df[column] = (processed_df[column] - processed_df[column].mean()) / std
+            else:
+                # Encode categorical features
+                processed_df[column] = pd.Categorical(processed_df[column]).codes.astype(np.int32)
+        
+        return processed_df
 
     def split_data(self, df: pd.DataFrame, 
                   validation_ratio: float = 0.2, 
