@@ -3,42 +3,48 @@ Test suite for DataHandler component.
 """
 
 import unittest
+import tempfile
+from pathlib import Path
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import tempfile
+from data_handler import DataHandler, DataValidationError, ValidationRule
 import json
-from data_handler import DataHandler, ValidationRule, DataValidationError
 
 class TestDataHandler(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures before each test method."""
-        # Create sample validation rules
-        self.validation_rules = {
-            "feature1": [ValidationRule.REQUIRED, ValidationRule.NUMERIC],
-            "feature2": [ValidationRule.REQUIRED, ValidationRule.CATEGORICAL],
-            "target": [ValidationRule.REQUIRED, ValidationRule.NUMERIC]
-        }
-        
-        # Create sample preprocessing specifications
-        self.preprocessing_specs = {
-            "normalize": {"columns": ["feature1"]},
-            "encode_categorical": {"columns": ["feature2"]}
-        }
-        
-        # Create sample data
-        self.sample_data = pd.DataFrame({
-            "feature1": [1.0, 2.0, 3.0, 4.0, 5.0],
-            "feature2": ["A", "B", "A", "C", "B"],
-            "target": [0.1, 0.2, 0.3, 0.4, 0.5]
-        })
-        
-        # Create temporary CSV file
         self.temp_dir = tempfile.mkdtemp()
         self.csv_path = Path(self.temp_dir) / "test_data.csv"
+        
+        # Create sample data with required columns
+        dates = pd.date_range(start='2023-01-01', periods=100)
+        data = {
+            'date': dates,
+            'open': np.random.uniform(100, 200, 100),
+            'high': np.random.uniform(150, 250, 100),
+            'low': np.random.uniform(50, 150, 100),
+            'close': np.random.uniform(75, 225, 100),
+            'volume': np.random.uniform(1e6, 5e6, 100)
+        }
+        self.sample_data = pd.DataFrame(data)
         self.sample_data.to_csv(self.csv_path, index=False)
         
-        # Initialize DataHandler
+        # Create sample validation rules and preprocessing specs
+        self.validation_rules = {
+            'date': [ValidationRule.REQUIRED, ValidationRule.DATE],
+            'open': [ValidationRule.REQUIRED, ValidationRule.NUMERIC],
+            'high': [ValidationRule.REQUIRED, ValidationRule.NUMERIC],
+            'low': [ValidationRule.REQUIRED, ValidationRule.NUMERIC],
+            'close': [ValidationRule.REQUIRED, ValidationRule.NUMERIC],
+            'volume': [ValidationRule.REQUIRED, ValidationRule.NUMERIC]
+        }
+        
+        self.preprocessing_specs = {
+            'normalize': {'columns': ['open', 'high', 'low', 'close', 'volume']},
+            'datetime_features': {'columns': ['date']}
+        }
+        
+        # Initialize DataHandler with settings
         self.data_handler = DataHandler(
             validation_rules=self.validation_rules,
             preprocessing_specs=self.preprocessing_specs
@@ -48,8 +54,8 @@ class TestDataHandler(unittest.TestCase):
         """Test data loading functionality."""
         df = self.data_handler.load_data(str(self.csv_path))
         self.assertIsInstance(df, pd.DataFrame)
-        self.assertEqual(len(df), 5)
-        self.assertEqual(list(df.columns), ["feature1", "feature2", "target"])
+        self.assertEqual(len(df), 100)
+        self.assertEqual(list(df.columns), ['date', 'open', 'high', 'low', 'close', 'volume'])
 
     def test_validate_data(self):
         """Test data validation functionality."""
@@ -60,7 +66,7 @@ class TestDataHandler(unittest.TestCase):
         
         # Test with invalid data
         invalid_df = df.copy()
-        invalid_df.loc[0, "feature1"] = None
+        invalid_df.loc[0, "open"] = None
         with self.assertRaises(DataValidationError):
             self.data_handler.validate_data(invalid_df)
 
@@ -70,18 +76,18 @@ class TestDataHandler(unittest.TestCase):
         processed_df = self.data_handler.preprocess_data(df)
         
         # Check normalization for non-zero std columns
-        feature1_std = df["feature1"].std()
-        if feature1_std != 0:
+        open_std = df["open"].std()
+        if open_std != 0:
             self.assertTrue(
-                np.allclose(processed_df["feature1"].mean(), 0, atol=1e-10)
+                np.allclose(processed_df["open"].mean(), 0, atol=1e-10)
             )
             self.assertTrue(
-                np.allclose(processed_df["feature1"].std(), 1, atol=1e-10)
+                np.allclose(processed_df["open"].std(), 1, atol=1e-10)
             )
         
         # Check categorical encoding
         self.assertTrue(
-            processed_df["feature2"].dtype in [np.int32, np.int64]
+            processed_df["date"].dtype in [np.int32, np.int64]
         )
 
     def test_split_data(self):
@@ -92,8 +98,8 @@ class TestDataHandler(unittest.TestCase):
         )
         
         # Check split sizes
-        self.assertEqual(len(train_data), 3)
-        self.assertEqual(len(val_data), 2)
+        self.assertEqual(len(train_data), 60)
+        self.assertEqual(len(val_data), 40)
         
         # Check no data leakage
         train_indices = set(train_data.index)
@@ -105,10 +111,10 @@ class TestDataHandler(unittest.TestCase):
         df = self.data_handler.load_data(str(self.csv_path))
         stats = self.data_handler.calculate_statistics(df)
         
-        self.assertEqual(stats.row_count, 5)
-        self.assertEqual(stats.column_count, 3)
-        self.assertEqual(stats.missing_values["feature1"], 0)
-        self.assertIn("feature1", stats.numeric_stats)
+        self.assertEqual(stats.row_count, 100)
+        self.assertEqual(stats.column_count, 6)
+        self.assertEqual(stats.missing_values["open"], 0)
+        self.assertIn("open", stats.numeric_stats)
 
     def test_process_dataset(self):
         """Test complete data processing pipeline."""
@@ -119,8 +125,8 @@ class TestDataHandler(unittest.TestCase):
         # Check outputs
         self.assertIsInstance(train_data, pd.DataFrame)
         self.assertIsInstance(val_data, pd.DataFrame)
-        self.assertEqual(len(train_data) + len(val_data), 5)
-        self.assertEqual(stats.row_count, 5)
+        self.assertEqual(len(train_data) + len(val_data), 100)
+        self.assertEqual(stats.row_count, 100)
 
     def tearDown(self):
         """Clean up test fixtures after each test method."""

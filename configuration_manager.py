@@ -291,3 +291,42 @@ class ConfigurationManager:
         except Exception as e:
             self.logger.error(f"Compatibility validation failed: {str(e)}")
             return False
+
+    def validate_config(self, config_path: str) -> Dict[str, Any]:
+        """
+        Load and validate configuration from a file.
+        
+        Args:
+            config_path: Path to the configuration file
+            
+        Returns:
+            Dictionary containing validated configuration
+            
+        Raises:
+            ValueError: If configuration is invalid
+        """
+        try:
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+                
+            # Validate required fields
+            required_fields = ["strategy_name", "parameters", "optimization"]
+            for field in required_fields:
+                if field not in config:
+                    raise ValueError(f"Missing required field: {field}")
+                    
+            # Validate parameter ranges
+            for param, settings in config["parameters"].items():
+                if not all(k in settings for k in ["type", "range"]):
+                    raise ValueError(f"Invalid parameter settings for {param}")
+                    
+            # Validate optimization settings
+            opt_settings = config["optimization"]
+            if not all(k in opt_settings for k in ["method", "trials", "timeout"]):
+                raise ValueError("Invalid optimization settings")
+                
+            return config
+            
+        except Exception as e:
+            self.logger.error(f"Error validating config: {str(e)}")
+            raise ValueError(f"Error validating config: {str(e)}")

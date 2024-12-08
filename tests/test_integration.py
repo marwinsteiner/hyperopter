@@ -224,4 +224,20 @@ class TestTradingStrategyOptimizer:
     def teardown_method(self):
         """Clean up temporary files."""
         import shutil
-        shutil.rmtree(self.temp_dir)
+        import time
+        import os
+        
+        # Give some time for file handles to be released
+        time.sleep(0.1)
+        
+        # Try multiple times to delete the directory
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                shutil.rmtree(self.temp_dir)
+                break
+            except PermissionError:
+                if attempt < max_retries - 1:
+                    time.sleep(0.1)  # Wait a bit before retrying
+                else:
+                    print(f"Warning: Could not delete temp directory {self.temp_dir}")

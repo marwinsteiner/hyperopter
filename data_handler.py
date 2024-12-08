@@ -13,6 +13,7 @@ import numpy as np
 from dataclasses import dataclass
 import logging
 from enum import Enum
+from sklearn.model_selection import train_test_split
 
 class DataValidationError(Exception):
     """Custom exception for data validation errors."""
@@ -61,34 +62,51 @@ class DataHandler:
         self.validation_rules = validation_rules
         self.preprocessing_specs = preprocessing_specs
 
-    def load_data(self, file_path: str) -> pd.DataFrame:
+    def load_data(self, data_path: str) -> pd.DataFrame:
         """
-        Load data from CSV file with error handling.
+        Load and validate data from a file.
         
         Args:
-            file_path: Path to the CSV file
+            data_path: Path to the data file
             
         Returns:
-            pandas DataFrame containing the loaded data
+            DataFrame containing validated data
             
         Raises:
-            FileNotFoundError: If the CSV file doesn't exist
-            pd.errors.EmptyDataError: If the CSV file is empty
+            ValueError: If data is invalid
         """
         try:
-            if not Path(file_path).exists():
-                raise FileNotFoundError(f"CSV file not found: {file_path}")
+            data = pd.read_csv(data_path)
             
-            df = pd.read_csv(file_path)
-            if df.empty:
-                raise pd.errors.EmptyDataError("CSV file is empty")
-            
-            self.logger.info(f"Successfully loaded data from {file_path}")
-            return df
+            # Check required columns
+            required_columns = ["date", "open", "high", "low", "close", "volume"]
+            missing_columns = [col for col in required_columns if col not in data.columns]
+            if missing_columns:
+                raise ValueError(f"Missing required columns: {missing_columns}")
+                
+            # Check data types and convert if needed
+            for col in data.columns:
+                if col == "date":
+                    try:
+                        data[col] = pd.to_datetime(data[col])
+                    except Exception as e:
+                        raise ValueError(f"Column {col} must be convertible to datetime")
+                else:
+                    try:
+                        data[col] = pd.to_numeric(data[col])
+                    except Exception as e:
+                        raise ValueError(f"Column {col} must be numeric")
+                        
+            # Handle missing values
+            if data.isnull().any().any():
+                self.logger.warning("Found missing values, forward filling...")
+                data = data.ffill()
+                
+            return data
             
         except Exception as e:
             self.logger.error(f"Error loading data: {str(e)}")
-            raise
+            raise ValueError(f"Error loading data: {str(e)}")
 
     def validate_data(self, df: pd.DataFrame) -> None:
         """
@@ -168,11 +186,11 @@ class DataHandler:
         if not 0 < validation_ratio < 1:
             raise ValueError("validation_ratio must be between 0 and 1")
             
-        np.random.seed(random_state)
-        mask = np.random.rand(len(df)) >= validation_ratio
-        
-        train_data = df[mask]
-        val_data = df[~mask]
+        train_data, val_data = train_test_split(
+            df, 
+            test_size=validation_ratio,
+            random_state=random_state
+        )
         
         self.logger.info(f"Data split: {len(train_data)} training samples, {len(val_data)} validation samples")
         return train_data, val_data

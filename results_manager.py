@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Union
+import os
 
 import pandas as pd
 from loguru import logger
@@ -269,3 +270,29 @@ class ResultsManager:
                 raise InvalidResultsError(f"Failed to export CI report: {str(e)}")
                 
         return ci_report
+
+    def save_results(self, results: Dict[str, Any]) -> None:
+        """
+        Save optimization results to a file.
+        
+        Args:
+            results: Dictionary containing optimization results
+        """
+        try:
+            # Create results directory if it doesn't exist
+            results_dir = os.path.join(self.output_dir, "results")
+            os.makedirs(results_dir, exist_ok=True)
+            
+            # Generate timestamp for filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            results_file = os.path.join(results_dir, f"optimization_results_{timestamp}.json")
+            
+            # Save results to JSON file
+            with open(results_file, "w") as f:
+                json.dump(results, f, indent=4, default=str)
+                
+            logger.info(f"Results saved to {results_file}")
+            
+        except Exception as e:
+            logger.error(f"Error saving results: {str(e)}")
+            raise
