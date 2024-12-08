@@ -1,0 +1,2 @@
+2024-12-08T16:51:23.126295+0000 - INFO - Initialized results manager
+2024-12-08T16:51:23.127293+0000 - ERROR - Error during optimization: ParallelOptimizer.__init__() got an unexpected keyword argument 'objective_function'

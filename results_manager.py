@@ -296,3 +296,30 @@ class ResultsManager:
         except Exception as e:
             logger.error(f"Error saving results: {str(e)}")
             raise
+
+    def get_best_trial(self) -> Dict[str, Any]:
+        """
+        Get the best trial from the optimization results.
+        
+        Returns:
+            Dictionary containing best trial parameters and metrics
+        """
+        try:
+            # Load latest results file
+            results_files = sorted(self.output_dir.glob("*.json"))
+            if not results_files:
+                raise ValueError("No results files found")
+                
+            latest_file = results_files[-1]
+            with open(latest_file, "r") as f:
+                results = json.load(f)
+                
+            # Get best trial
+            if not results.get("best_trial"):
+                raise ValueError("No best trial found in results")
+                
+            return results["best_trial"]["parameters"]
+            
+        except Exception as e:
+            logger.error(f"Failed to get best trial: {str(e)}")
+            return {}

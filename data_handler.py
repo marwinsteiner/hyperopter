@@ -6,7 +6,7 @@ It implements input validation, error handling, and data splitting functionality
 to the specified contract.
 """
 
-from typing import Dict, Tuple, Any, Optional
+from typing import Dict, Tuple, Any, Optional, List
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -48,20 +48,23 @@ class DataHandler:
         logger: Logger instance for tracking operations
         validation_rules: Dictionary of column-wise validation rules
         preprocessing_specs: Dictionary of preprocessing specifications
+        required_columns: List of required column names
     """
     
-    def __init__(self, validation_rules: Dict[str, list], preprocessing_specs: Dict[str, Any]):
+    def __init__(self, validation_rules: Dict[str, list], preprocessing_specs: Dict[str, Any], required_columns: Optional[List[str]] = None):
         """
         Initialize the DataHandler with validation rules and preprocessing specifications.
         
         Args:
             validation_rules: Dictionary mapping column names to their validation rules
             preprocessing_specs: Dictionary containing preprocessing specifications
+            required_columns: Optional list of required column names
         """
         self.logger = logging.getLogger(__name__)
         self.validation_rules = validation_rules
         self.preprocessing_specs = preprocessing_specs
-
+        self.required_columns = required_columns or []
+    
     def load_data(self, data_path: str) -> pd.DataFrame:
         """
         Load and validate data from a file.
@@ -77,27 +80,8 @@ class DataHandler:
         """
         try:
             data = pd.read_csv(data_path)
+            self.validate_data(data)
             
-            # Check required columns
-            required_columns = ["date", "open", "high", "low", "close", "volume"]
-            missing_columns = [col for col in required_columns if col not in data.columns]
-            if missing_columns:
-                raise ValueError(f"Missing required columns: {missing_columns}")
-                
-            # Check data types and convert if needed
-            for col in data.columns:
-                if col == "date":
-                    try:
-                        data[col] = pd.to_datetime(data[col])
-                    except Exception as e:
-                        raise ValueError(f"Column {col} must be convertible to datetime")
-                else:
-                    try:
-                        data[col] = pd.to_numeric(data[col])
-                    except Exception as e:
-                        raise ValueError(f"Column {col} must be numeric")
-                        
-            # Handle missing values
             if data.isnull().any().any():
                 self.logger.warning("Found missing values, forward filling...")
                 data = data.ffill()
@@ -107,7 +91,7 @@ class DataHandler:
         except Exception as e:
             self.logger.error(f"Error loading data: {str(e)}")
             raise ValueError(f"Error loading data: {str(e)}")
-
+    
     def validate_data(self, df: pd.DataFrame) -> None:
         """
         Validate data according to specified rules.
@@ -120,12 +104,15 @@ class DataHandler:
         """
         try:
             # Check required columns
-            missing_cols = set(self.validation_rules.keys()) - set(df.columns)
+            missing_cols = set(self.required_columns) - set(df.columns)
             if missing_cols:
                 raise DataValidationError(f"Missing required columns: {missing_cols}")
-
+            
             # Apply validation rules
             for column, rules in self.validation_rules.items():
+                if column not in df.columns:
+                    continue  # Skip validation for columns not in the data
+                
                 for rule in rules:
                     if rule == ValidationRule.REQUIRED:
                         if df[column].isnull().any():
@@ -138,7 +125,7 @@ class DataHandler:
                             pd.to_datetime(df[column])
                         except:
                             raise DataValidationError(f"Column {column} contains invalid dates")
-
+            
             self.logger.info("Data validation completed successfully")
             
         except Exception as e:
@@ -238,9 +225,6 @@ class DataHandler:
         """
         # Load data
         df = self.load_data(file_path)
-        
-        # Validate
-        self.validate_data(df)
         
         # Preprocess
         processed_df = self.preprocess_data(df)

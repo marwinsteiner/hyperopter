@@ -1,0 +1,270 @@
+{
+    "status": "completed",
+    "total_trials": 50,
+    "completed_trials": 0,
+    "failed_trials": 10,
+    "duration": 7.108740568161011,
+    "best_trial": null,
+    "all_results": [
+        {
+            "trial_id": 0,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0010461807250976562,
+            "worker_id": 0,
+            "error": "window must be an integer 0 or greater"
+        },
+        {
+            "trial_id": 1,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0018320083618164062,
+            "worker_id": 0,
+            "error": "window must be an integer 0 or greater"
+        },
+        {
+            "trial_id": 2,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0005314350128173828,
+            "worker_id": 0,
+            "error": "window must be an integer 0 or greater"
+        },
+        {
+            "trial_id": 3,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0010504722595214844,
+            "worker_id": 0,
+            "error": "window must be an integer 0 or greater"
+        },
+        {
+            "trial_id": 4,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0005285739898681641,
+            "worker_id": 0,
+            "error": "window must be an integer 0 or greater"
+        },
+        {
+            "trial_id": 5,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.000997781753540039,
+            "worker_id": 1,
+            "error": "window must be an integer 0 or greater"
+        },
+        {
+            "trial_id": 6,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0,
+            "worker_id": 1,
+            "error": "window must be an integer 0 or greater"
+        },
+        {
+            "trial_id": 7,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0009970664978027344,
+            "worker_id": 1,
+            "error": "window must be an integer 0 or greater"
+        },
+        {
+            "trial_id": 8,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0,
+            "worker_id": 1,
+            "error": "window must be an integer 0 or greater"
+        },
+        {
+            "trial_id": 9,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0009961128234863281,
+            "worker_id": 1,
+            "error": "window must be an integer 0 or greater"
+        }
+    ]
+}

@@ -1,10 +1,30 @@
 {
-    "strategy_config": {
-        "name": "moving_average_crossover",
-        "description": "Moving average crossover strategy optimization",
-        "version": "1.0.0"
+    "parameter_space": {
+        "fast_period": {
+            "type": "int",
+            "range": [5, 50],
+            "step": 1
+        },
+        "slow_period": {
+            "type": "int",
+            "range": [20, 200],
+            "step": 1
+        }
     },
-    "data_handler_config": {
+    "optimization_settings": {
+        "max_iterations": 50,
+        "convergence_threshold": 0.001,
+        "parallel_trials": 4,
+        "random_seed": 42
+    },
+    "strategy": {
+        "name": "bayesian",
+        "parameters": {
+            "metric": "sharpe_ratio",
+            "direction": "maximize"
+        }
+    },
+    "data_handler": {
         "required_columns": ["date", "open", "high", "low", "close", "volume"],
         "date_column": "date",
         "price_column": "close",
@@ -19,28 +39,6 @@
         "preprocessing": {
             "normalize": false,
             "fill_missing": "forward"
-        }
-    },
-    "optimization_settings": {
-        "strategy": "bayesian",
-        "metric": "sharpe_ratio",
-        "direction": "maximize",
-        "n_trials": 50,
-        "n_jobs": -1,
-        "random_state": 42
-    },
-    "parameter_space": {
-        "fast_period": {
-            "type": "int",
-            "low": 5,
-            "high": 50,
-            "step": 1
-        },
-        "slow_period": {
-            "type": "int",
-            "low": 20,
-            "high": 200,
-            "step": 1
         }
     }
 }

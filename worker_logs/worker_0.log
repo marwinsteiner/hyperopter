@@ -1,0 +1,14 @@
+2024-12-08T17:10:31.639812+0000 - INFO - Worker 0 - Worker setup complete
+2024-12-08T17:10:31.640809+0000 - ERROR - Worker 0 - Trial 0 failed: TradingStrategyOptimizer._evaluate_strategy() got an unexpected keyword argument 'fast_period'
+2024-12-08T17:10:31.640809+0000 - ERROR - Worker 0 - Trial 1 failed: TradingStrategyOptimizer._evaluate_strategy() got an unexpected keyword argument 'fast_period'
+2024-12-08T17:10:31.641807+0000 - ERROR - Worker 0 - Trial 2 failed: TradingStrategyOptimizer._evaluate_strategy() got an unexpected keyword argument 'fast_period'
+2024-12-08T17:10:31.641807+0000 - ERROR - Worker 0 - Trial 3 failed: TradingStrategyOptimizer._evaluate_strategy() got an unexpected keyword argument 'fast_period'
+2024-12-08T17:10:31.642804+0000 - ERROR - Worker 0 - Trial 4 failed: TradingStrategyOptimizer._evaluate_strategy() got an unexpected keyword argument 'fast_period'
+2024-12-08T17:10:31.642804+0000 - INFO - Worker 0 - Worker cleanup started
+2024-12-08T17:11:14.214376+0000 - INFO - Worker 0 - Worker setup complete
+2024-12-08T17:11:14.216851+0000 - ERROR - Worker 0 - Trial 0 failed: window must be an integer 0 or greater
+2024-12-08T17:11:14.217979+0000 - ERROR - Worker 0 - Trial 1 failed: window must be an integer 0 or greater
+2024-12-08T17:11:14.218683+0000 - ERROR - Worker 0 - Trial 2 failed: window must be an integer 0 or greater
+2024-12-08T17:11:14.219728+0000 - ERROR - Worker 0 - Trial 3 failed: window must be an integer 0 or greater
+2024-12-08T17:11:14.220265+0000 - ERROR - Worker 0 - Trial 4 failed: window must be an integer 0 or greater
+2024-12-08T17:11:14.220794+0000 - INFO - Worker 0 - Worker cleanup started

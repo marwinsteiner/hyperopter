@@ -1,0 +1,15 @@
+2024-12-08T16:53:15.799833+0000 - INFO - Initialized results manager
+2024-12-08T16:53:15.802828+0000 - INFO - Initialized memory manager
+2024-12-08T16:53:15.809808+0000 - INFO - Initialized results manager
+2024-12-08T16:53:15.810839+0000 - INFO - Initialized parallel optimizer with 4 workers
+2024-12-08T16:53:15.811030+0000 - INFO - Starting optimization process...
+2024-12-08T16:53:15.811572+0000 - INFO - Starting continuous memory monitoring
+2024-12-08T16:53:15.815139+0000 - WARNING - Memory usage high, initiating cleanup
+2024-12-08T16:53:15.857405+0000 - WARNING - Memory cleanup completed but usage still high
+2024-12-08T16:54:15.866950+0000 - WARNING - Memory usage high, initiating cleanup
+2024-12-08T16:54:15.916729+0000 - WARNING - Memory cleanup completed but usage still high
+2024-12-08T16:55:15.939217+0000 - ERROR - System memory usage (91.9%) exceeds limit (90.0%)
+2024-12-08T16:55:15.943208+0000 - ERROR - Continuous monitoring failed: System memory usage (91.9%) exceeds limit (90.0%)
+2024-12-08T16:55:15.945201+0000 - ERROR - Optimization failed: Continuous monitoring failed: System memory usage (91.9%) exceeds limit (90.0%)
+2024-12-08T16:55:15.960163+0000 - INFO - Stopped memory monitoring
+2024-12-08T16:55:15.978112+0000 - ERROR - Error during optimization: Optimization failed: Continuous monitoring failed: System memory usage (91.9%) exceeds limit (90.0%)

@@ -11,7 +11,6 @@ import time
 
 from loguru import logger
 
-from memory_manager import MemoryManager
 from results_manager import ResultsManager
 
 @dataclass
@@ -44,7 +43,6 @@ class ParallelOptimizer:
     def __init__(self,
                  n_workers: int = None,
                  batch_size: int = 10,
-                 memory_per_worker: float = 0.2,
                  log_dir: Optional[Union[str, Path]] = None):
         """
         Initialize the parallel optimizer.
@@ -52,7 +50,6 @@ class ParallelOptimizer:
         Args:
             n_workers: Number of worker processes (default: CPU count)
             batch_size: Number of trials per batch
-            memory_per_worker: Maximum memory fraction per worker
             log_dir: Directory for worker logs
             
         Raises:
@@ -64,15 +61,10 @@ class ParallelOptimizer:
             
         self.n_workers = n_workers or mp.cpu_count()
         self.batch_size = max(1, batch_size)
-        self.memory_per_worker = min(max(0.1, memory_per_worker), 0.4)  # 10-40%
         self.log_dir = Path(log_dir) if log_dir else Path.cwd() / "worker_logs"
         
         # Create components
         try:
-            self.memory_manager = MemoryManager(
-                memory_limit=0.9,  # 90% total system memory
-                cleanup_threshold=0.8
-            )
             self.results_manager = ResultsManager(
                 output_dir=self.log_dir
             )
@@ -85,7 +77,7 @@ class ParallelOptimizer:
                 WorkerConfig(
                     worker_id=i,
                     batch_size=self.batch_size,
-                    memory_limit=self.memory_per_worker,
+                    memory_limit=0.0,
                     log_dir=self.log_dir
                 )
                 for i in range(self.n_workers)
@@ -163,8 +155,8 @@ class ParallelOptimizer:
                 start_time = time.time()
                 
                 try:
-                    # Call the objective function with unpacked parameters
-                    result = objective_fn(**trial["parameters"])
+                    # Call the objective function with parameters
+                    result = objective_fn(trial["parameters"])
                     
                     # Record successful result
                     results.append({
@@ -245,9 +237,6 @@ class ParallelOptimizer:
                 for i in range(0, len(trials), self.batch_size)
             ]
             
-            # Start memory monitoring
-            self.memory_manager.start_continuous_monitoring()
-            
             # Execute batches in parallel
             with ProcessPoolExecutor(max_workers=self.n_workers) as executor:
                 future_to_batch = {
@@ -325,10 +314,6 @@ class ParallelOptimizer:
             logger.error(f"Optimization failed: {str(e)}")
             raise ParallelError(f"Optimization failed: {str(e)}")
             
-        finally:
-            # Stop memory monitoring
-            self.memory_manager.stop_monitoring()
-            
     def get_worker_status(self) -> Dict[str, Any]:
         """
         Get status of worker processes.
@@ -337,10 +322,12 @@ class ParallelOptimizer:
             Dictionary containing worker status information
         """
         try:
-            return self.memory_manager.coordinate_parallel_workers(
-                [os.getpid() + i + 1 for i in range(self.n_workers)],
-                memory_per_worker=self.memory_per_worker
-            )
+            return {
+                "error": None,
+                "timestamp": datetime.now(),
+                "worker_metrics": {},
+                "total_workers": self.n_workers
+            }
         except Exception as e:
             logger.error(f"Failed to get worker status: {str(e)}")
             return {

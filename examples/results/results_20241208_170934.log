@@ -1,0 +1,10 @@
+2024-12-08T17:09:34.152394+0000 - INFO - Initialized results manager
+2024-12-08T17:09:34.162206+0000 - INFO - Initialized results manager
+2024-12-08T17:09:34.163267+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-08T17:09:34.163784+0000 - INFO - Starting optimization process...
+2024-12-08T17:09:34.203847+0000 - ERROR - Batch processing failed: Can't get local object 'TradingStrategyOptimizer.optimize.<locals>.<lambda>'
+2024-12-08T17:09:34.204845+0000 - ERROR - Batch processing failed: Can't get local object 'TradingStrategyOptimizer.optimize.<locals>.<lambda>'
+2024-12-08T17:09:41.503176+0000 - INFO - Optimization completed: 0/50 trials successful
+2024-12-08T17:09:41.509157+0000 - INFO - Results saved to C:\Users\marwi\PycharmProjects\hyperopter\examples\results\results\optimization_results_20241208_170941.json
+2024-12-08T17:09:41.509157+0000 - INFO - Optimization completed successfully
+2024-12-08T17:09:41.510164+0000 - ERROR - Failed to get best trial: No results files found

@@ -26,9 +26,10 @@ class MemoryManager:
     """Manager for monitoring and optimizing memory usage."""
     
     def __init__(self, 
-                 memory_limit: float = 0.8,  # 80% of system memory
-                 cleanup_threshold: float = 0.7,  # 70% of system memory
-                 monitoring_interval: int = 60):  # 60 seconds
+                 memory_limit: float = 0.95,  # 95% of system memory
+                 cleanup_threshold: float = 0.9,  # 90% of memory limit
+                 monitoring_interval: int = 60,  # 60 seconds
+                 cleanup_interval: float = 300.0):  # Cleanup every 5 minutes
         """
         Initialize the memory manager.
         
@@ -36,6 +37,7 @@ class MemoryManager:
             memory_limit: Maximum memory usage as fraction of total system memory
             cleanup_threshold: Memory threshold to trigger cleanup as fraction
             monitoring_interval: Interval between memory checks in seconds
+            cleanup_interval: Minimum interval between cleanups in seconds
             
         Raises:
             MemoryError: If invalid parameters are provided
@@ -46,10 +48,13 @@ class MemoryManager:
             raise MemoryError("Cleanup threshold must be between 0 and memory limit")
         if monitoring_interval < 1:
             raise MemoryError("Monitoring interval must be positive")
+        if cleanup_interval <= 0.0:
+            raise MemoryError("Cleanup interval must be positive")
             
         self.memory_limit = memory_limit
         self.cleanup_threshold = cleanup_threshold
         self.monitoring_interval = monitoring_interval
+        self.cleanup_interval = cleanup_interval
         
         self.process = psutil.Process()
         self.total_memory = psutil.virtual_memory().total

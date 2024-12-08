@@ -238,7 +238,11 @@ class ConfigurationManager:
             Dictionary containing DataHandler configuration including validation rules
             and preprocessing specifications
         """
-        # Extract and transform relevant configuration for DataHandler
+        # Return data handler configuration if it exists
+        if "data_handler" in self.config_data:
+            return self.config_data["data_handler"]
+            
+        # Otherwise, generate from parameter space
         validation_rules = {}
         preprocessing_specs = {}
         
