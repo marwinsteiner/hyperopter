@@ -12,3 +12,24 @@
 2024-12-08T17:11:14.219728+0000 - ERROR - Worker 0 - Trial 3 failed: window must be an integer 0 or greater
 2024-12-08T17:11:14.220265+0000 - ERROR - Worker 0 - Trial 4 failed: window must be an integer 0 or greater
 2024-12-08T17:11:14.220794+0000 - INFO - Worker 0 - Worker cleanup started
+2024-12-09T11:51:27.205297+0000 - INFO - Worker 0 - Worker setup complete
+2024-12-09T11:51:27.206998+0000 - ERROR - Worker 0 - Trial 0 failed: int() argument must be a string, a bytes-like object or a real number, not 'dict'
+2024-12-09T11:51:27.206998+0000 - ERROR - Worker 0 - Trial 1 failed: int() argument must be a string, a bytes-like object or a real number, not 'dict'
+2024-12-09T11:51:27.207999+0000 - ERROR - Worker 0 - Trial 2 failed: int() argument must be a string, a bytes-like object or a real number, not 'dict'
+2024-12-09T11:51:27.207999+0000 - ERROR - Worker 0 - Trial 3 failed: int() argument must be a string, a bytes-like object or a real number, not 'dict'
+2024-12-09T11:51:27.208988+0000 - ERROR - Worker 0 - Trial 4 failed: int() argument must be a string, a bytes-like object or a real number, not 'dict'
+2024-12-09T11:51:27.209290+0000 - INFO - Worker 0 - Worker cleanup started
+2024-12-09T11:52:14.562402+0000 - INFO - Worker 0 - Worker setup complete
+2024-12-09T11:52:14.562402+0000 - ERROR - Worker 0 - Trial 0 failed: 'value'
+2024-12-09T11:52:14.563401+0000 - ERROR - Worker 0 - Trial 1 failed: 'value'
+2024-12-09T11:52:14.564397+0000 - ERROR - Worker 0 - Trial 2 failed: 'value'
+2024-12-09T11:52:14.565396+0000 - ERROR - Worker 0 - Trial 3 failed: 'value'
+2024-12-09T11:52:14.565396+0000 - ERROR - Worker 0 - Trial 4 failed: 'value'
+2024-12-09T11:52:14.565396+0000 - INFO - Worker 0 - Worker cleanup started
+2024-12-09T11:53:29.624151+0000 - INFO - Worker 0 - Worker setup complete
+2024-12-09T11:53:29.626146+0000 - ERROR - Worker 0 - Trial 0 failed: 'Close'
+2024-12-09T11:53:29.626146+0000 - ERROR - Worker 0 - Trial 1 failed: 'Close'
+2024-12-09T11:53:29.627152+0000 - ERROR - Worker 0 - Trial 2 failed: 'Close'
+2024-12-09T11:53:29.627152+0000 - ERROR - Worker 0 - Trial 3 failed: 'Close'
+2024-12-09T11:53:29.628142+0000 - ERROR - Worker 0 - Trial 4 failed: 'Close'
+2024-12-09T11:53:29.628142+0000 - INFO - Worker 0 - Worker cleanup started

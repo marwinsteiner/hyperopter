@@ -1,0 +1,270 @@
+{
+    "status": "completed",
+    "total_trials": 50,
+    "completed_trials": 0,
+    "failed_trials": 10,
+    "duration": 6.431186676025391,
+    "best_trial": null,
+    "all_results": [
+        {
+            "trial_id": 0,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0009984970092773438,
+            "worker_id": 0,
+            "error": "'value'"
+        },
+        {
+            "trial_id": 1,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0009965896606445312,
+            "worker_id": 0,
+            "error": "'value'"
+        },
+        {
+            "trial_id": 2,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0009984970092773438,
+            "worker_id": 0,
+            "error": "'value'"
+        },
+        {
+            "trial_id": 3,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0,
+            "worker_id": 0,
+            "error": "'value'"
+        },
+        {
+            "trial_id": 4,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0,
+            "worker_id": 0,
+            "error": "'value'"
+        },
+        {
+            "trial_id": 5,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.000997304916381836,
+            "worker_id": 1,
+            "error": "'value'"
+        },
+        {
+            "trial_id": 6,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0,
+            "worker_id": 1,
+            "error": "'value'"
+        },
+        {
+            "trial_id": 7,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0010046958923339844,
+            "worker_id": 1,
+            "error": "'value'"
+        },
+        {
+            "trial_id": 8,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0,
+            "worker_id": 1,
+            "error": "'value'"
+        },
+        {
+            "trial_id": 9,
+            "parameters": {
+                "fast_period": {
+                    "type": "int",
+                    "range": [
+                        5,
+                        50
+                    ],
+                    "step": 1
+                },
+                "slow_period": {
+                    "type": "int",
+                    "range": [
+                        20,
+                        200
+                    ],
+                    "step": 1
+                }
+            },
+            "result": null,
+            "status": "failed",
+            "duration": 0.0009894371032714844,
+            "worker_id": 1,
+            "error": "'value'"
+        }
+    ]
+}

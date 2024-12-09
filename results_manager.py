@@ -306,7 +306,7 @@ class ResultsManager:
         """
         try:
             # Load latest results file
-            results_files = sorted(self.output_dir.glob("*.json"))
+            results_files = sorted(Path(self.output_dir).glob("optimization_results_*.json"))
             if not results_files:
                 raise ValueError("No results files found")
                 
@@ -316,7 +316,13 @@ class ResultsManager:
                 
             # Get best trial
             if not results.get("best_trial"):
-                raise ValueError("No best trial found in results")
+                # Find best trial based on result value
+                completed_trials = [t for t in results["trials"] if t["status"] == "completed"]
+                if not completed_trials:
+                    return {}
+                    
+                best_trial = max(completed_trials, key=lambda t: t["result"])
+                return best_trial["parameters"]
                 
             return results["best_trial"]["parameters"]
             

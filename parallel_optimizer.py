@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple, Callable, Union
 import os
 import time
+import numpy as np
 
 from loguru import logger
 
@@ -219,10 +220,14 @@ class ParallelOptimizer:
             for i in range(n_trials):
                 params = {}
                 for k, v in parameter_space.items():
-                    if callable(v):
-                        params[k] = v()
-                    elif hasattr(v, 'sample'):
-                        params[k] = v.sample()
+                    if isinstance(v, dict):
+                        if v["type"] == "int":
+                            start, end = v["range"]
+                            step = v.get("step", 1)
+                            value = np.random.randint(start, end + 1)
+                            params[k] = value
+                        else:
+                            params[k] = v["range"][0]  # Default to first value
                     else:
                         params[k] = v
                         
@@ -290,7 +295,7 @@ class ParallelOptimizer:
                         
             # Generate optimization summary
             completed_trials = [r for r in all_results if r["status"] == "completed"]
-            best_trial = min(completed_trials, key=lambda x: x["result"]) if completed_trials else None
+            best_trial = max(completed_trials, key=lambda x: x["result"]) if completed_trials else None
             
             summary = {
                 "status": "completed",
@@ -299,16 +304,12 @@ class ParallelOptimizer:
                 "failed_trials": len(all_results) - len(completed_trials),
                 "duration": time.time() - start_time,
                 "best_trial": best_trial,
-                "all_results": all_results
+                "trials": all_results
             }
             
             logger.info(f"Optimization completed: {len(completed_trials)}/{n_trials} trials successful")
-            return summary
             
-        except TimeoutError:
-            msg = "Optimization timeout"
-            logger.error(msg)
-            raise ParallelError(msg)
+            return summary
             
         except Exception as e:
             logger.error(f"Optimization failed: {str(e)}")
