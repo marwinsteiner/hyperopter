@@ -1,41 +1,47 @@
-# Hyperopter
+# Hyperopt
 
 [![Python Version](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## Overview
 
-Hyperopter is a sophisticated hyperparameter optimization pipeline designed for trading strategies. It automates the process of finding optimal parameters for trading strategies through a modular, efficient, and scalable architecture.
+Hyperopt is a sophisticated hyperparameter optimization framework designed for trading strategies. It provides a parallel, efficient, and modular architecture for finding optimal parameters that maximize strategy performance metrics like Sharpe ratio.
 
 ### Key Features
 
-- 🚀 Automated hyperparameter optimization for trading strategies
-- 📊 CSV-based data handling with comprehensive validation
-- ⚙️ JSON-based configuration management
-- 🔄 Designed with CI/CD strategy pipelines in mind
-- 📈 Performance metrics and visualization
-- 🛠 Modular and extensible architecture
+- 🚀 Parallel optimization with configurable workers and batch sizes
+- 📊 Flexible strategy evaluation with customizable metrics
+- ⚙️ JSON-based configuration for parameter spaces and optimization settings
+- 🔄 Robust error handling and result management
+- 📈 Comprehensive logging and result tracking
+- 🛠 Modular architecture for easy extension
 
 ### Current Status
 
-Current Version: 1.0.0 (Development Phase)
+Current Version: 0.1.0 (Development Phase)
 
 ## Quick Start
 
 ### Prerequisites
 
 ```bash
-- Python 3.8 or higher
-- poetry (package manager)
-- Git
+Python 3.12 or higher
+Required packages:
+- pandas
+- numpy
+- scikit-learn
+- loguru
+- jsonschema
+- pytest
+- psutil
 ```
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/hyperopt-trade.git
-cd hyperopt-trade
+git clone https://github.com/marwinsteiner/hyperopt.git
+cd hyperopt
 
 # Create and activate virtual environment
 python -m venv venv
@@ -47,81 +53,82 @@ pip install -r requirements.txt
 
 ### Basic Usage
 
-1. Configure your strategy:
+1. Create a configuration file (e.g., `moving_average_config.json`):
 ```json
 {
-    "strategy_name": "example_strategy",
-    "parameters": {
-        "moving_average_period": {
-            "type": "integer",
-            "range": [5, 200],
+    "parameter_space": {
+        "fast_period": {
+            "type": "int",
+            "range": [2, 10],
+            "step": 1
+        },
+        "slow_period": {
+            "type": "int",
+            "range": [5, 20],
             "step": 1
         }
     },
-    "optimization": {
-        "method": "TPE",
-        "trials": 100,
-        "timeout": 3600
+    "optimization_settings": {
+        "max_iterations": 50,
+        "convergence_threshold": 0.001,
+        "parallel_trials": 4
     }
 }
 ```
 
-2. Run optimization:
-```bash
-python -m hyperopt_trade optimize --config config.json --data data.csv
+2. Implement your strategy evaluation function:
+```python
+def evaluate_strategy(data: pd.DataFrame, params: dict) -> float:
+    # Your strategy logic here
+    return performance_metric
 ```
 
-3. View results:
-```bash
-python -m hyperopt_trade results --output results.json
+3. Run optimization:
+```python
+from integration import create_optimizer
+
+optimizer = create_optimizer(
+    config_path="config.json",
+    data_path="data.csv",
+    strategy_evaluator=evaluate_strategy,
+    output_dir="results"
+)
+optimizer.optimize()
 ```
 
-## Documentation
+## Architecture
 
-### Architecture Overview
+The framework consists of four core components:
 
-The system consists of five core components:
-
-1. **Configuration Manager**: Handles JSON configuration parsing and validation
-2. **Data Handler**: Manages CSV data loading and preprocessing
-3. **Optimization Engine**: Executes hyperparameter optimization
-4. **Results Manager**: Generates and stores optimization results
-5. **Logging System**: Provides comprehensive system logging
+1. **Integration Layer**: Provides a clean interface for creating and running optimizations
+2. **Parallel Optimizer**: Handles parallel execution of strategy evaluations
+3. **Results Manager**: Manages optimization results and generates reports
+4. **Configuration Manager**: Handles parameter space and optimization settings
 
 ```mermaid
 graph TD
-    A[Config Manager] --> B[Data Handler]
-    B --> C[Optimization Engine]
-    C --> D[Results Manager]
-    E[Logger] --> A
-    E --> B
-    E --> C
-    E --> D
+    A[Integration Layer] --> B[Parallel Optimizer]
+    A --> C[Results Manager]
+    A --> D[Config Manager]
+    B --> C
+    D --> B
 ```
+
+## Examples
+
+The repository includes a complete example of optimizing a moving average crossover strategy:
+
+- `examples/optimize_moving_average.py`: Example strategy implementation
+- `examples/data/sample_data.csv`: Sample price data
+- `config/moving_average_config.json`: Example configuration
 
 ## Development
 
-### Setup Development Environment
+### Running Tests
 
 ```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Setup pre-commit hooks
-pre-commit install
-
-# Run tests
+# Run all tests
 pytest tests/
-```
-
-### Testing
-
-```bash
-# Run unit tests
-pytest tests/unit/
-
-# Run integration tests
-pytest tests/integration/
 
 # Run with coverage
 pytest --cov=src tests/
@@ -134,25 +141,6 @@ pytest --cov=src tests/
 3. Write tests for new features
 4. Ensure all tests pass
 5. Submit a pull request
-
-## Deployment
-
-### Production Considerations
-
-1. Memory Management
-   - Monitor resource usage
-   - Implement cleanup strategies
-   - Set appropriate limits
-
-2. Error Handling
-   - Implement robust error handling
-   - Set up monitoring alerts
-   - Maintain error logs
-
-3. Performance
-   - Use parallel processing when possible
-   - Implement caching strategies
-   - Monitor optimization performance
 
 ## Support
 
