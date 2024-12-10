@@ -1,0 +1,20 @@
+2024-12-10T09:45:42.993825+0000 - INFO - Initialized results manager
+2024-12-10T09:45:43.003882+0000 - INFO - Initialized results manager
+2024-12-10T09:45:43.008887+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-10T09:45:43.009604+0000 - INFO - Starting optimization process...
+2024-12-10T09:45:46.715247+0000 - INFO - Added result for trial 0
+2024-12-10T09:45:46.727216+0000 - INFO - Added result for trial 1
+2024-12-10T09:45:46.735194+0000 - INFO - Added result for trial 2
+2024-12-10T09:45:46.740181+0000 - INFO - Added result for trial 3
+2024-12-10T09:45:46.746164+0000 - INFO - Added result for trial 4
+2024-12-10T09:45:46.749158+0000 - INFO - Added batch of 5 results
+2024-12-10T09:45:46.756137+0000 - INFO - Added result for trial 5
+2024-12-10T09:45:46.759128+0000 - INFO - Added result for trial 6
+2024-12-10T09:45:46.764118+0000 - INFO - Added result for trial 7
+2024-12-10T09:45:46.771100+0000 - INFO - Added result for trial 8
+2024-12-10T09:45:46.774093+0000 - INFO - Added result for trial 9
+2024-12-10T09:45:46.776084+0000 - INFO - Added batch of 5 results
+2024-12-10T09:45:47.232673+0000 - INFO - Optimization completed: 0/50 trials successful
+2024-12-10T09:45:47.237657+0000 - INFO - Results saved to C:\Users\marwi\PycharmProjects\hyperopter\results\results\optimization_results_20241210_094547.json
+2024-12-10T09:45:47.238656+0000 - INFO - Optimization completed successfully
+2024-12-10T09:45:47.242642+0000 - ERROR - Failed to get best trial: No results files found

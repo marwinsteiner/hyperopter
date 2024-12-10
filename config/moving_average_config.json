@@ -2,12 +2,12 @@
     "parameter_space": {
         "fast_period": {
             "type": "int",
-            "range": [5, 50],
+            "range": [2, 10],
             "step": 1
         },
         "slow_period": {
             "type": "int",
-            "range": [20, 200],
+            "range": [5, 20],
             "step": 1
         }
     },

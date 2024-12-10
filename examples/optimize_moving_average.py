@@ -30,28 +30,37 @@ def evaluate_moving_average_strategy(data: pd.DataFrame, params: dict) -> float:
     fast_period = int(params["fast_period"]["value"]) if isinstance(params["fast_period"], dict) else int(params["fast_period"])
     slow_period = int(params["slow_period"]["value"]) if isinstance(params["slow_period"], dict) else int(params["slow_period"])
     
-    # Ensure fast period is less than slow period
-    if fast_period >= slow_period:
+    # Ensure fast period is less than slow period and we have enough data
+    if fast_period >= slow_period or len(data) < slow_period + 20:  # Need extra data for returns
         return float('-inf')
     
     # Calculate moving averages
     fast_ma = data["close"].rolling(window=fast_period).mean()
     slow_ma = data["close"].rolling(window=slow_period).mean()
     
+    # Drop initial NaN values
+    valid_idx = slow_ma.dropna().index
+    fast_ma = fast_ma[valid_idx]
+    slow_ma = slow_ma[valid_idx]
+    
+    # Ensure we have enough data points after dropping NaNs
+    if len(fast_ma) < 20:  # Need at least 20 data points for meaningful statistics
+        return float('-inf')
+    
     # Generate signals
-    signals = pd.Series(0, index=data.index)
+    signals = pd.Series(0, index=valid_idx)
     signals[fast_ma > slow_ma] = 1  # Long when fast MA crosses above slow MA
     signals[fast_ma < slow_ma] = -1  # Short when fast MA crosses below slow MA
     
     # Calculate returns
-    daily_returns = data["close"].pct_change()
+    daily_returns = data.loc[valid_idx, "close"].pct_change()
     strategy_returns = signals.shift(1) * daily_returns
     
     # Drop NaN values
     strategy_returns = strategy_returns.dropna()
     
     # Calculate Sharpe ratio (handle edge cases)
-    if len(strategy_returns) == 0 or strategy_returns.std() == 0:
+    if len(strategy_returns) < 20 or strategy_returns.std() == 0:
         return float('-inf')
         
     sharpe_ratio = np.sqrt(252) * strategy_returns.mean() / strategy_returns.std()
