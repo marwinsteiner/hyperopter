@@ -1,0 +1,141 @@
+{
+    "status": "completed",
+    "total_trials": 50,
+    "completed_trials": 10,
+    "failed_trials": 0,
+    "duration": 4.025611400604248,
+    "best_trial": {
+        "trial_id": 0,
+        "parameters": {
+            "fast_period": 25,
+            "slow_period": 104
+        },
+        "result": -Infinity,
+        "status": "completed",
+        "duration": 0.005982875823974609,
+        "worker_id": 0,
+        "error": null
+    },
+    "trials": [
+        {
+            "trial_id": 0,
+            "parameters": {
+                "fast_period": 25,
+                "slow_period": 104
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.005982875823974609,
+            "worker_id": 0,
+            "error": null
+        },
+        {
+            "trial_id": 1,
+            "parameters": {
+                "fast_period": 19,
+                "slow_period": 37
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.004987001419067383,
+            "worker_id": 0,
+            "error": null
+        },
+        {
+            "trial_id": 2,
+            "parameters": {
+                "fast_period": 18,
+                "slow_period": 181
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.004986763000488281,
+            "worker_id": 0,
+            "error": null
+        },
+        {
+            "trial_id": 3,
+            "parameters": {
+                "fast_period": 14,
+                "slow_period": 175
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.004986286163330078,
+            "worker_id": 0,
+            "error": null
+        },
+        {
+            "trial_id": 4,
+            "parameters": {
+                "fast_period": 25,
+                "slow_period": 162
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.006982326507568359,
+            "worker_id": 0,
+            "error": null
+        },
+        {
+            "trial_id": 5,
+            "parameters": {
+                "fast_period": 6,
+                "slow_period": 189
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.007980108261108398,
+            "worker_id": 1,
+            "error": null
+        },
+        {
+            "trial_id": 6,
+            "parameters": {
+                "fast_period": 26,
+                "slow_period": 163
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.004986763000488281,
+            "worker_id": 1,
+            "error": null
+        },
+        {
+            "trial_id": 7,
+            "parameters": {
+                "fast_period": 41,
+                "slow_period": 127
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.007978200912475586,
+            "worker_id": 1,
+            "error": null
+        },
+        {
+            "trial_id": 8,
+            "parameters": {
+                "fast_period": 26,
+                "slow_period": 25
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.0,
+            "worker_id": 1,
+            "error": null
+        },
+        {
+            "trial_id": 9,
+            "parameters": {
+                "fast_period": 12,
+                "slow_period": 41
+            },
+            "result": -Infinity,
+            "status": "completed",
+            "duration": 0.004985332489013672,
+            "worker_id": 1,
+            "error": null
+        }
+    ]
+}

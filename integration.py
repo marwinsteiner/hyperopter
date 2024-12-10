@@ -94,10 +94,11 @@ class TradingStrategyOptimizer:
             param_space = self.config_manager.get_parameter_space()
             strategy_config = self.config_manager.get_strategy_config()
             
-            # Initialize optimizer
+            # Initialize optimizer with same output directory
             optimizer = ParallelOptimizer(
                 n_workers=min(opt_settings.parallel_trials, 2),  # Limit workers to avoid memory issues
-                batch_size=5  # Smaller batch size
+                batch_size=5,  # Smaller batch size
+                log_dir=self.output_dir  # Use same output directory
             )
             
             # Run optimization

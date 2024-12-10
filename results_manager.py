@@ -306,7 +306,7 @@ class ResultsManager:
         """
         try:
             # Load latest results file
-            results_files = sorted(Path(self.output_dir).glob("optimization_results_*.json"))
+            results_files = sorted(Path(self.output_dir).rglob("optimization_results_*.json"))
             if not results_files:
                 raise ValueError("No results files found")
                 

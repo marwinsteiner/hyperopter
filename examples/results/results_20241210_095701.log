@@ -1,0 +1,37 @@
+2024-12-10T09:57:01.097612+0000 - INFO - Initialized results manager
+2024-12-10T09:57:01.107586+0000 - INFO - Initialized results manager
+2024-12-10T09:57:01.107586+0000 - INFO - Initialized results manager
+2024-12-10T09:57:01.109587+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-10T09:57:01.109587+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-10T09:57:01.110585+0000 - INFO - Starting optimization process...
+2024-12-10T09:57:01.110585+0000 - INFO - Starting optimization process...
+2024-12-10T09:57:04.760411+0000 - INFO - Added result for trial 0
+2024-12-10T09:57:04.760411+0000 - INFO - Added result for trial 0
+2024-12-10T09:57:04.765398+0000 - INFO - Added result for trial 1
+2024-12-10T09:57:04.765398+0000 - INFO - Added result for trial 1
+2024-12-10T09:57:04.771380+0000 - INFO - Added result for trial 2
+2024-12-10T09:57:04.771380+0000 - INFO - Added result for trial 2
+2024-12-10T09:57:04.775370+0000 - INFO - Added result for trial 3
+2024-12-10T09:57:04.775370+0000 - INFO - Added result for trial 3
+2024-12-10T09:57:04.782351+0000 - INFO - Added result for trial 4
+2024-12-10T09:57:04.782351+0000 - INFO - Added result for trial 4
+2024-12-10T09:57:04.787338+0000 - INFO - Added batch of 5 results
+2024-12-10T09:57:04.787338+0000 - INFO - Added batch of 5 results
+2024-12-10T09:57:04.796314+0000 - INFO - Added result for trial 5
+2024-12-10T09:57:04.796314+0000 - INFO - Added result for trial 5
+2024-12-10T09:57:04.802300+0000 - INFO - Added result for trial 6
+2024-12-10T09:57:04.802300+0000 - INFO - Added result for trial 6
+2024-12-10T09:57:04.807285+0000 - INFO - Added result for trial 7
+2024-12-10T09:57:04.807285+0000 - INFO - Added result for trial 7
+2024-12-10T09:57:04.811273+0000 - INFO - Added result for trial 8
+2024-12-10T09:57:04.811273+0000 - INFO - Added result for trial 8
+2024-12-10T09:57:04.821247+0000 - INFO - Added result for trial 9
+2024-12-10T09:57:04.821247+0000 - INFO - Added result for trial 9
+2024-12-10T09:57:04.823249+0000 - INFO - Added batch of 5 results
+2024-12-10T09:57:04.823249+0000 - INFO - Added batch of 5 results
+2024-12-10T09:57:05.137194+0000 - INFO - Optimization completed: 10/50 trials successful
+2024-12-10T09:57:05.137194+0000 - INFO - Optimization completed: 10/50 trials successful
+2024-12-10T09:57:05.141183+0000 - INFO - Results saved to c:\Users\marwi\PycharmProjects\hyperopter\examples\results\results\optimization_results_20241210_095705.json
+2024-12-10T09:57:05.141183+0000 - INFO - Results saved to c:\Users\marwi\PycharmProjects\hyperopter\examples\results\results\optimization_results_20241210_095705.json
+2024-12-10T09:57:05.142182+0000 - INFO - Optimization completed successfully
+2024-12-10T09:57:05.142182+0000 - INFO - Optimization completed successfully

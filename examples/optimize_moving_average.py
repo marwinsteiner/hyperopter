@@ -30,9 +30,13 @@ def evaluate_moving_average_strategy(data: pd.DataFrame, params: dict) -> float:
     fast_period = int(params["fast_period"]["value"]) if isinstance(params["fast_period"], dict) else int(params["fast_period"])
     slow_period = int(params["slow_period"]["value"]) if isinstance(params["slow_period"], dict) else int(params["slow_period"])
     
+    # Ensure fast period is less than slow period
+    if fast_period >= slow_period:
+        return float('-inf')
+    
     # Calculate moving averages
-    fast_ma = data["Close"].rolling(window=fast_period).mean()
-    slow_ma = data["Close"].rolling(window=slow_period).mean()
+    fast_ma = data["close"].rolling(window=fast_period).mean()
+    slow_ma = data["close"].rolling(window=slow_period).mean()
     
     # Generate signals
     signals = pd.Series(0, index=data.index)
@@ -40,12 +44,22 @@ def evaluate_moving_average_strategy(data: pd.DataFrame, params: dict) -> float:
     signals[fast_ma < slow_ma] = -1  # Short when fast MA crosses below slow MA
     
     # Calculate returns
-    daily_returns = data["Close"].pct_change()
+    daily_returns = data["close"].pct_change()
     strategy_returns = signals.shift(1) * daily_returns
     
-    # Calculate Sharpe ratio
+    # Drop NaN values
+    strategy_returns = strategy_returns.dropna()
+    
+    # Calculate Sharpe ratio (handle edge cases)
+    if len(strategy_returns) == 0 or strategy_returns.std() == 0:
+        return float('-inf')
+        
     sharpe_ratio = np.sqrt(252) * strategy_returns.mean() / strategy_returns.std()
     
+    # Handle invalid values
+    if np.isnan(sharpe_ratio) or np.isinf(sharpe_ratio):
+        return float('-inf')
+        
     return float(sharpe_ratio)
 
 def main():
@@ -53,6 +67,7 @@ def main():
     # Get paths
     config_path = os.path.join(project_root, "config", "moving_average_config.json")
     data_path = os.path.join(project_root, "examples", "data", "sample_data.csv")
+    output_dir = os.path.join(project_root, "examples", "results")
     
     print(f"Config path: {config_path}")
     print(f"Config path exists: {os.path.exists(config_path)}")
@@ -64,7 +79,8 @@ def main():
     optimizer = create_optimizer(
         config_path=config_path,
         data_path=data_path,
-        strategy_evaluator=evaluate_moving_average_strategy
+        strategy_evaluator=evaluate_moving_average_strategy,
+        output_dir=output_dir
     )
     
     # Run optimization
