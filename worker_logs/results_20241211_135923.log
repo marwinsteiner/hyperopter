@@ -1,0 +1,16 @@
+2024-12-11T13:59:23.191392+0000 - INFO - Initialized results manager
+2024-12-11T13:59:23.192389+0000 - INFO - Initialized parallel optimizer with 4 workers
+2024-12-11T13:59:23.381670+0000 - INFO - Initialized results manager
+2024-12-11T13:59:23.382667+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-11T13:59:23.390648+0000 - INFO - Added result for trial 0
+2024-12-11T13:59:23.391643+0000 - INFO - Added batch of 1 results
+2024-12-11T13:59:23.391643+0000 - INFO - Optimization completed: 1/1 trials successful
+2024-12-11T13:59:23.394637+0000 - ERROR - Trial execution timeout
+2024-12-11T13:59:23.395634+0000 - ERROR - Optimization failed: Trial execution timeout
+2024-12-11T13:59:23.594143+0000 - INFO - Initialized results manager
+2024-12-11T13:59:23.596029+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-11T13:59:23.598509+0000 - ERROR - Optimization failed: Task distribution failed
+2024-12-11T13:59:23.828104+0000 - INFO - Initialized results manager
+2024-12-11T13:59:23.830098+0000 - INFO - Initialized parallel optimizer with 2 workers
+2024-12-11T13:59:23.844408+0000 - INFO - Worker setup complete
+2024-12-11T13:59:23.845404+0000 - INFO - Worker cleanup started

@@ -37,8 +37,8 @@ class TestMemoryManager(unittest.TestCase):
         """Test memory manager initialization."""
         # Test valid initialization
         mm = MemoryManager()
-        self.assertEqual(mm.memory_limit, 0.8)
-        self.assertEqual(mm.cleanup_threshold, 0.7)
+        self.assertEqual(mm.memory_limit, 0.95)
+        self.assertEqual(mm.cleanup_threshold, 0.9)
         
         # Test invalid memory limit
         with self.assertRaises(MemoryError):

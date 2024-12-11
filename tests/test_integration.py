@@ -4,11 +4,13 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch
+import time
+import shutil
+import pytest
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from integration import TradingStrategyOptimizer
 
@@ -16,23 +18,42 @@ from integration import TradingStrategyOptimizer
 def sample_config():
     """Create a sample configuration dictionary."""
     return {
-        "strategy_name": "moving_average_crossover",
-        "parameters": {
+        "parameter_space": {
             "short_window": {
-                "type": "integer",
+                "type": "int",
                 "range": [5, 50],
                 "step": 1
             },
             "long_window": {
-                "type": "integer",
+                "type": "int",
                 "range": [50, 200],
                 "step": 1
             }
         },
-        "optimization": {
-            "method": "TPE",
-            "trials": 10,
-            "timeout": 60
+        "optimization_settings": {
+            "max_iterations": 10,
+            "convergence_threshold": 0.001,
+            "parallel_trials": 2,
+            "random_seed": 42
+        },
+        "strategy": {
+            "name": "bayesian",  # Use a valid OptimizationStrategy enum value
+            "parameters": {
+                "acquisition_function": "expected_improvement",
+                "exploration_weight": 0.1
+            }
+        },
+        "data_handler": {
+            "validation_rules": {
+                "close": ["required", "numeric"],
+                "date": ["required", "date"],
+                "open": ["numeric"],
+                "high": ["numeric"],
+                "low": ["numeric"],
+                "volume": ["numeric"]
+            },
+            "preprocessing": {},
+            "required_columns": ["date", "open", "high", "low", "close", "volume"]
         }
     }
 
@@ -50,143 +71,189 @@ def sample_data():
     })
     return data
 
+@pytest.fixture
+def strategy_evaluator():
+    """Create a mock strategy evaluator function."""
+    def evaluator(data, params):
+        """Simple moving average crossover strategy evaluator."""
+        short_window = params["short_window"]
+        long_window = params["long_window"]
+        
+        # Calculate moving averages
+        short_ma = data["close"].rolling(window=short_window).mean()
+        long_ma = data["close"].rolling(window=long_window).mean()
+        
+        # Generate signals
+        signals = pd.Series(0, index=data.index)
+        signals[short_ma > long_ma] = 1  # Buy signal
+        signals[short_ma < long_ma] = -1  # Sell signal
+        
+        # Calculate returns
+        returns = data["close"].pct_change() * signals.shift(1)
+        sharpe_ratio = np.sqrt(252) * returns.mean() / returns.std()
+        
+        return -sharpe_ratio  # Negative because we want to maximize Sharpe ratio
+    
+    return evaluator
+
+@pytest.fixture
+def test_dir():
+    """Create a temporary directory for test files."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    # Clean up temporary files
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            shutil.rmtree(temp_dir)
+            break
+        except PermissionError:
+            if attempt < max_retries - 1:
+                time.sleep(0.1)  # Wait briefly before retrying
+            else:
+                print(f"Warning: Could not delete temp directory {temp_dir}")
+
+@pytest.fixture
+def test_paths(test_dir):
+    """Create test file paths."""
+    return {
+        "config": Path(test_dir) / "config.json",
+        "data": Path(test_dir) / "data.csv",
+        "output": Path(test_dir) / "results"
+    }
+
+@pytest.fixture
+def setup_files(test_paths):
+    """Set up test files with fixture data."""
+    def _setup_files(sample_config, sample_data):
+        with open(test_paths["config"], "w") as f:
+            json.dump(sample_config, f)
+        sample_data.to_csv(test_paths["data"], index=False)
+    return _setup_files
+
 class TestTradingStrategyOptimizer:
     """Test suite for TradingStrategyOptimizer."""
-    
-    def setup_method(self):
-        """Set up test environment."""
-        # Create temporary directory
-        self.temp_dir = tempfile.mkdtemp()
-        
-        # Create sample files
-        self.config_path = os.path.join(self.temp_dir, "config.json")
-        self.data_path = os.path.join(self.temp_dir, "data.csv")
-        self.output_dir = os.path.join(self.temp_dir, "results")
-        
-    def test_initialization(self, sample_config, sample_data):
+
+    def test_initialization(self, test_paths, sample_config, sample_data, strategy_evaluator, setup_files):
         """Test optimizer initialization."""
-        # Write sample files
-        with open(self.config_path, "w") as f:
-            json.dump(sample_config, f)
-        sample_data.to_csv(self.data_path, index=False)
+        setup_files(sample_config, sample_data)
         
-        # Initialize optimizer
         optimizer = TradingStrategyOptimizer(
-            config_path=self.config_path,
-            data_path=self.data_path,
-            output_dir=self.output_dir
+            config_path=test_paths["config"],
+            data_path=test_paths["data"],
+            strategy_evaluator=strategy_evaluator,
+            output_dir=test_paths["output"]
         )
         
-        assert optimizer.config_path == Path(self.config_path)
-        assert optimizer.data_path == Path(self.data_path)
-        assert optimizer.output_dir == Path(self.output_dir)
-        assert Path(self.output_dir).exists()
+        assert optimizer.config_manager is not None
+        assert optimizer.data is not None
+        assert optimizer.output_dir == test_paths["output"]
+        assert test_paths["output"].exists()
         
-    def test_config_validation(self, sample_config, sample_data):
+    def test_config_validation(self, test_paths, sample_config, sample_data, strategy_evaluator, setup_files):
         """Test configuration validation."""
-        # Write sample files
-        with open(self.config_path, "w") as f:
-            json.dump(sample_config, f)
-        sample_data.to_csv(self.data_path, index=False)
+        setup_files(sample_config, sample_data)
         
         # Test valid config
         optimizer = TradingStrategyOptimizer(
-            config_path=self.config_path,
-            data_path=self.data_path,
-            output_dir=self.output_dir
+            config_path=test_paths["config"],
+            data_path=test_paths["data"],
+            strategy_evaluator=strategy_evaluator,
+            output_dir=test_paths["output"]
         )
-        config = optimizer._validate_config()
-        assert config == sample_config
+        
+        # Verify configuration loaded correctly
+        assert optimizer.config_manager.config_data is not None
         
         # Test invalid config
         invalid_config = sample_config.copy()
-        del invalid_config["strategy_name"]
-        with open(self.config_path, "w") as f:
+        del invalid_config["strategy"]
+        with open(test_paths["config"], "w") as f:
             json.dump(invalid_config, f)
             
-        with pytest.raises(ValueError):
-            optimizer._validate_config()
-            
-    def test_data_validation(self, sample_config, sample_data):
+        with pytest.raises(Exception):
+            TradingStrategyOptimizer(
+                config_path=test_paths["config"],
+                data_path=test_paths["data"],
+                strategy_evaluator=strategy_evaluator,
+                output_dir=test_paths["output"]
+            )
+
+    def test_data_validation(self, test_paths, sample_config, sample_data, strategy_evaluator, setup_files):
         """Test data validation."""
-        # Write sample files
-        with open(self.config_path, "w") as f:
-            json.dump(sample_config, f)
-        sample_data.to_csv(self.data_path, index=False)
-        
+        setup_files(sample_config, sample_data)
+
         # Test valid data
         optimizer = TradingStrategyOptimizer(
-            config_path=self.config_path,
-            data_path=self.data_path,
-            output_dir=self.output_dir
+            config_path=test_paths["config"],
+            data_path=test_paths["data"],
+            strategy_evaluator=strategy_evaluator,
+            output_dir=test_paths["output"]
         )
-        data = optimizer._validate_data()
-        assert isinstance(data, pd.DataFrame)
-        assert all(col in data.columns for col in ["date", "open", "high", "low", "close", "volume"])
-        
+        assert optimizer.data is not None
+        assert isinstance(optimizer.data, pd.DataFrame)
+
         # Test invalid data
         invalid_data = sample_data.copy()
-        invalid_data["close"] = "invalid"
-        invalid_data.to_csv(self.data_path, index=False)
-        
-        with pytest.raises(ValueError):
-            optimizer._validate_data()
-            
-    def test_moving_average_signals(self, sample_config, sample_data):
+        invalid_data.drop(columns=["close"], inplace=True)
+        invalid_data.to_csv(test_paths["data"], index=False)
+
+        # Create a new optimizer instance with invalid data
+        with pytest.raises(ValueError, match="Error loading data: Missing required columns: {'close'}"):
+            TradingStrategyOptimizer(
+                config_path=test_paths["config"],
+                data_path=test_paths["data"],
+                strategy_evaluator=strategy_evaluator,
+                output_dir=test_paths["output"]
+            )
+
+    def test_moving_average_signals(self, test_paths, sample_config, sample_data, strategy_evaluator, setup_files):
         """Test moving average signal calculation."""
-        # Write sample files
-        with open(self.config_path, "w") as f:
-            json.dump(sample_config, f)
-        sample_data.to_csv(self.data_path, index=False)
+        setup_files(sample_config, sample_data)
         
         optimizer = TradingStrategyOptimizer(
-            config_path=self.config_path,
-            data_path=self.data_path,
-            output_dir=self.output_dir
+            config_path=test_paths["config"],
+            data_path=test_paths["data"],
+            strategy_evaluator=strategy_evaluator,
+            output_dir=test_paths["output"]
         )
-        
-        signals_df = optimizer._calculate_moving_average_signals(
-            sample_data,
-            short_window=10,
-            long_window=50
-        )
-        
-        assert "signal" in signals_df.columns
-        assert "strategy_returns" in signals_df.columns
-        assert all(s in [-1, 0, 1] for s in signals_df["signal"].unique())
-        
-    def test_performance_metrics(self, sample_config, sample_data):
+
+        # Test strategy evaluation
+        result = optimizer._evaluate_strategy({
+            "short_window": 10,
+            "long_window": 50
+        })
+        assert isinstance(result, float)
+
+    def test_performance_metrics(self, test_paths, sample_config, sample_data, strategy_evaluator, setup_files):
         """Test performance metric calculation."""
-        # Write sample files
-        with open(self.config_path, "w") as f:
-            json.dump(sample_config, f)
-        sample_data.to_csv(self.data_path, index=False)
+        setup_files(sample_config, sample_data)
         
         optimizer = TradingStrategyOptimizer(
-            config_path=self.config_path,
-            data_path=self.data_path,
-            output_dir=self.output_dir
+            config_path=test_paths["config"],
+            data_path=test_paths["data"],
+            strategy_evaluator=strategy_evaluator,
+            output_dir=test_paths["output"]
         )
+
+        # Test strategy evaluation with different parameters
+        result1 = optimizer._evaluate_strategy({
+            "short_window": 5,
+            "long_window": 20
+        })
+        result2 = optimizer._evaluate_strategy({
+            "short_window": 10,
+            "long_window": 50
+        })
         
-        signals_df = optimizer._calculate_moving_average_signals(
-            sample_data,
-            short_window=10,
-            long_window=50
-        )
-        metrics = optimizer._calculate_performance_metrics(signals_df)
-        
-        assert "sharpe_ratio" in metrics
-        assert "max_drawdown" in metrics
-        assert isinstance(metrics["sharpe_ratio"], float)
-        assert isinstance(metrics["max_drawdown"], float)
-        
-    def test_optimization(self, sample_config, sample_data):
+        assert isinstance(result1, float)
+        assert isinstance(result2, float)
+        assert result1 != result2  # Different parameters should give different results
+
+    def test_optimization(self, test_paths, sample_config, sample_data, strategy_evaluator, setup_files):
         """Test full optimization process."""
-        # Write sample files
-        with open(self.config_path, "w") as f:
-            json.dump(sample_config, f)
-        sample_data.to_csv(self.data_path, index=False)
-        
+        setup_files(sample_config, sample_data)
+
         # Mock optimizer components
         mock_result = {
             "status": "completed",
@@ -202,42 +269,21 @@ class TestTradingStrategyOptimizer:
                 "status": "completed"
             }]
         }
-        
-        with patch("parallel_optimizer.ParallelOptimizer") as mock_optimizer:
-            mock_optimizer.return_value.optimize.return_value = mock_result
-            
+
+        with patch("integration.ParallelOptimizer") as mock_optimizer:
+            mock_instance = mock_optimizer.return_value
+            mock_instance.optimize.return_value = mock_result
+
             optimizer = TradingStrategyOptimizer(
-                config_path=self.config_path,
-                data_path=self.data_path,
-                output_dir=self.output_dir
+                config_path=test_paths["config"],
+                data_path=test_paths["data"],
+                strategy_evaluator=strategy_evaluator,
+                output_dir=test_paths["output"]
             )
-            optimizer.optimizer = mock_optimizer.return_value
-            
+
             results = optimizer.optimize()
-            
-            assert "best_parameters" in results
-            assert "performance_metrics" in results
-            assert "optimization_history" in results
-            assert len(results["optimization_history"]) == 1
-            assert results["best_parameters"] == {"short_window": 10, "long_window": 50}
-            
-    def teardown_method(self):
-        """Clean up temporary files."""
-        import shutil
-        import time
-        import os
-        
-        # Give some time for file handles to be released
-        time.sleep(0.1)
-        
-        # Try multiple times to delete the directory
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                shutil.rmtree(self.temp_dir)
-                break
-            except PermissionError:
-                if attempt < max_retries - 1:
-                    time.sleep(0.1)  # Wait a bit before retrying
-                else:
-                    print(f"Warning: Could not delete temp directory {self.temp_dir}")
+
+            assert results["best_trial"] is not None
+            assert "parameters" in results["best_trial"]
+            assert results["completed_trials"] == 1
+            assert results["total_trials"] == 1

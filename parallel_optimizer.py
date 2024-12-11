@@ -60,8 +60,12 @@ class ParallelOptimizer:
         if n_workers is not None and n_workers < 1:
             raise ParallelError("Number of workers must be positive")
             
+        # Validate batch size
+        if batch_size < 1:
+            raise ParallelError("Batch size must be positive")
+            
         self.n_workers = n_workers or mp.cpu_count()
-        self.batch_size = max(1, batch_size)
+        self.batch_size = batch_size
         self.log_dir = Path(log_dir) if log_dir else Path.cwd() / "worker_logs"
         
         # Create components
