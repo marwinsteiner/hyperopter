@@ -10,7 +10,7 @@ Output:
 - Optimization direction: 'maximize'  
 - Performance metrics dictionary  
 
-## Dependencies  
+## Internal Dependencies  
 - loss_functions_base.py  
 - data_handler.py  
 - configuration_manager.py  
@@ -27,7 +27,6 @@ Output:
 ## Success Criteria  
 - Accurate Sharpe calculation  
 - Proper time-scaling  
-- < 100ms execution time  
 - Memory efficient  
 
 ## Validation Steps  

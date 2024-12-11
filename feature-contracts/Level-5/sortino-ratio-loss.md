@@ -10,7 +10,7 @@ Output:
 - Optimization direction: 'maximize'  
 - Downside risk metrics  
 
-## Dependencies  
+## Internal Dependencies  
 - loss_functions_base.py  
 - data_handler.py  
 - configuration_manager.py  
@@ -26,7 +26,6 @@ Output:
 ## Success Criteria  
 - Accurate downside deviation  
 - Proper MAR handling  
-- < 150ms execution time  
 - Memory efficient  
 
 ## Validation Steps  

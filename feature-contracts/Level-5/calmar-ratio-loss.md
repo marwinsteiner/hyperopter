@@ -9,7 +9,7 @@ Output:
 - Optimization direction: 'minimize'  
 - Complex risk metrics  
 
-## Dependencies  
+## Internal Dependencies  
 - loss_functions_base.py  
 - drawdown_loss.py  
 - data_handler.py  
@@ -25,7 +25,6 @@ Output:
 ## Success Criteria  
 - Accurate ratio calculation  
 - Proper period handling  
-- < 250ms execution time  
 - Memory efficient  
 
 ## Validation Steps  

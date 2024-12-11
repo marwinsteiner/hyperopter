@@ -13,7 +13,7 @@ Output:
 - Metadata (Dict[str, Any]): Additional metrics
 - hyperoptimization process/output is functionally unchanged.  
 
-## Dependencies  
+## Internal Dependencies  
 - data_handler.py  
 - configuration_manager.py  
 - optimization_engine.py  
@@ -30,7 +30,6 @@ Output:
 - Clean abstraction of loss calculation  
 - Consistent interface across implementations  
 - Thread-safe for parallel optimization  
-- < 50ms calculation time per iteration  
 
 ## Validation Steps  
 1. Unit tests in tests/test_loss_functions.py  

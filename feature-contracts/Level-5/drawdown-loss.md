@@ -9,7 +9,7 @@ Output:
 - Optimization direction: 'minimize'  
 - Drawdown period analysis  
 
-## Dependencies  
+## Internal Dependencies  
 - loss_functions_base.py  
 - data_handler.py  
 - configuration_manager.py  

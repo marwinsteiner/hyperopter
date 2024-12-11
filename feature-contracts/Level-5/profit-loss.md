@@ -9,7 +9,7 @@ Output:
 - Optimization direction: 'maximize'  
 - Basic performance metrics  
 
-## Dependencies  
+## Internal Dependencies  
 - loss_functions_base.py  
 - data_handler.py  
 - configuration_manager.py  
