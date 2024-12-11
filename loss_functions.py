@@ -347,3 +347,105 @@ class SharpeRatioLoss(BaseLossFunction):
         except Exception as e:
             logger.error(f"Error calculating Sharpe ratio: {str(e)}")
             raise
+
+
+class ProfitLossFunction(BaseLossFunction):
+    """
+    Simple profit/loss function for strategy optimization.
+    
+    This function calculates the total profit/loss of a trading strategy,
+    taking into account transaction fees and initial capital.
+    
+    Attributes:
+        initial_capital (float): Initial trading capital
+        transaction_fee (float): Fee per transaction as a percentage
+        min_trades (int): Minimum number of trades required
+    """
+    
+    def __init__(self,
+                 initial_capital: float = 10000.0,
+                 transaction_fee: float = 0.001,
+                 min_trades: int = 10):
+        """
+        Initialize the profit/loss function.
+        
+        Args:
+            initial_capital: Initial trading capital (default: 10000.0)
+            transaction_fee: Fee per transaction as a percentage (default: 0.1%)
+            min_trades: Minimum number of trades required (default: 10)
+            
+        Raises:
+            ValueError: If initial_capital <= 0, transaction_fee < 0, or min_trades < 1
+        """
+        super().__init__(name="Profit/Loss", direction="maximize")
+        
+        # Validate inputs
+        if initial_capital <= 0:
+            raise ValueError("initial_capital must be positive")
+        if transaction_fee < 0:
+            raise ValueError("transaction_fee cannot be negative")
+        if min_trades < 1:
+            raise ValueError("min_trades must be at least 1")
+            
+        self.initial_capital = initial_capital
+        self.transaction_fee = transaction_fee
+        self.min_trades = min_trades
+        
+        logger.debug(f"Initialized P&L function with capital={initial_capital:.2f}, fee={transaction_fee:.4%}")
+        
+    def calculate_loss(self,
+                      trade_data: pd.DataFrame,
+                      position_sizes: Optional[pd.Series] = None,
+                      pnl: Optional[pd.Series] = None,
+                      durations: Optional[pd.Series] = None) -> float:
+        """
+        Calculate the total profit/loss for a set of trades.
+        
+        Args:
+            trade_data: DataFrame containing trade history
+            position_sizes: Series of position sizes for each trade
+            pnl: Series of trade P&Ls (used if returns not in trade_data)
+            durations: Not used
+            
+        Returns:
+            Total profit/loss (positive for profit)
+            
+        Raises:
+            ValueError: If insufficient data or invalid values
+        """
+        # Validate required data
+        if pnl is None:
+            self.validate_required_columns(trade_data, ["pnl"])
+            pnl = trade_data["pnl"]
+        
+        # Validate number of trades
+        if len(pnl) < self.min_trades:
+            raise ValueError(f"Insufficient trades: {len(pnl)} < {self.min_trades}")
+        
+        # Calculate total P&L
+        total_pnl = pnl.sum()
+        
+        # Calculate transaction costs
+        n_trades = len(pnl)
+        if position_sizes is not None:
+            # Use actual position sizes for fee calculation
+            total_volume = position_sizes.abs().sum()
+        else:
+            # Estimate volume using initial capital
+            total_volume = self.initial_capital * n_trades
+            
+        total_fees = total_volume * self.transaction_fee
+        net_pnl = total_pnl - total_fees
+        
+        # Update metadata
+        self.metadata = {
+            "total_pnl": total_pnl,
+            "total_fees": total_fees,
+            "net_pnl": net_pnl,
+            "n_trades": n_trades,
+            "avg_pnl_per_trade": net_pnl / n_trades,
+            "total_volume": total_volume,
+            "roi": net_pnl / self.initial_capital
+        }
+        
+        return net_pnl  # Return raw P&L since direction is maximize
