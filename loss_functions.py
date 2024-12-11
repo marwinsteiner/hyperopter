@@ -449,3 +449,196 @@ class ProfitLossFunction(BaseLossFunction):
         }
         
         return net_pnl  # Return raw P&L since direction is maximize
+
+
+class SortinoRatioLoss(BaseLossFunction):
+    """Loss function based on the Sortino ratio.
+    
+    The Sortino ratio is a modification of the Sharpe ratio that only considers downside volatility.
+    It measures the risk-adjusted return of an investment asset, portfolio, or strategy.
+    
+    Args:
+        mar: Minimum Acceptable Return (MAR). Returns below this level are considered downside risk.
+        frequency: The frequency of returns ("daily" or "hourly"). Used for annualization.
+    """
+    
+    def __init__(self, mar: float = 0.0, frequency: str = "daily"):
+        """Initialize the Sortino ratio loss function.
+        
+        Args:
+            mar: Minimum Acceptable Return (MAR). Returns below this level are considered downside risk.
+            frequency: The frequency of returns ("daily" or "hourly"). Used for annualization.
+            
+        Raises:
+            ValueError: If frequency is not "daily" or "hourly".
+        """
+        self.mar = float(mar)
+        self.frequency = frequency.lower()
+        self.direction = "minimize"  # We minimize the negative of the Sortino ratio
+        
+        # Set annualization factor based on frequency
+        if self.frequency == "daily":
+            self.annualization_factor = 252  # Trading days in a year
+        elif self.frequency == "hourly":
+            self.annualization_factor = 252 * 24  # Trading hours in a year
+        else:
+            raise ValueError(f"Invalid frequency: {frequency}. Must be 'daily' or 'hourly'.")
+        
+        # Initialize metadata storage
+        self._metadata = {}
+        logger.debug(f"Initialized sortino_ratio loss function with {self.direction} direction")
+
+    def _calculate_downside_deviation(
+        self,
+        returns: pd.Series
+    ) -> float:
+        """Calculate the downside deviation of returns.
+        
+        Args:
+            returns: Series of period returns.
+            
+        Returns:
+            float: The downside deviation.
+        """
+        # Convert to numpy array for consistent calculations
+        returns_arr = returns.to_numpy()
+        
+        # Identify returns below MAR with tolerance
+        downside_mask = returns_arr < (self.mar - np.finfo(float).eps)
+        downside_returns = returns_arr[downside_mask]
+        
+        if len(downside_returns) == 0:
+            return 0.0
+        
+        # Calculate squared deviations from MAR
+        squared_deviations = (downside_returns - self.mar) ** 2
+        
+        # Return downside deviation (not annualized)
+        return np.sqrt(np.mean(squared_deviations))
+    
+    def calculate_loss(
+        self,
+        trade_data: pd.DataFrame,
+        position_sizes: Optional[pd.Series] = None,
+        pnl: Optional[pd.Series] = None,
+        durations: Optional[pd.Series] = None
+    ) -> float:
+        """Calculate the Sortino ratio for the trading strategy.
+        
+        Args:
+            trade_data: DataFrame containing trade history.
+            position_sizes: Optional series of position sizes.
+            pnl: Optional series of profit/loss values.
+            durations: Optional series of trade durations.
+            
+        Returns:
+            float: The Sortino ratio (higher is better).
+            
+        Raises:
+            ValueError: If required columns are missing or data is invalid.
+        """
+        if "pnl" not in trade_data.columns:
+            raise ValueError("Missing required column: 'pnl'")
+        
+        # Calculate returns and convert to numpy for consistent calculations
+        returns = trade_data["pnl"].astype(float)
+        returns_arr = returns.to_numpy()
+        
+        if len(returns) == 0:
+            raise ValueError("trade_data is empty")
+        
+        # Calculate mean return (not annualized)
+        mean_return = np.mean(returns_arr)
+        
+        # Calculate downside deviation first
+        downside_dev = self._calculate_downside_deviation(returns)
+        
+        # Add debug logging
+        print(f"DEBUG: returns = {returns_arr}")
+        print(f"DEBUG: mean_return = {mean_return}")
+        print(f"DEBUG: downside_dev = {downside_dev}")
+        print(f"DEBUG: mar = {self.mar}")
+        print(f"DEBUG: eps = {np.finfo(float).eps}")
+        
+        # Handle edge cases with proper numerical tolerance
+        eps = np.finfo(float).eps
+        if downside_dev < eps:  # Zero downside deviation
+            print(f"DEBUG: downside_dev < eps")
+            if mean_return > (self.mar + eps):
+                print(f"DEBUG: mean_return > mar + eps")
+                sortino_ratio = np.inf  # Perfect strategy
+            elif abs(mean_return - self.mar) <= eps:
+                print(f"DEBUG: mean_return ≈ mar")
+                sortino_ratio = -np.inf  # All returns equal to MAR (worst case)
+            else:
+                print(f"DEBUG: mean_return < mar")
+                sortino_ratio = -np.inf  # All returns equal but below MAR
+        else:
+            print(f"DEBUG: downside_dev >= eps")
+            # Calculate annualized Sortino ratio
+            # Formula: (Mean - MAR) * sqrt(n) / (Downside Dev * sqrt(n))
+            # The sqrt(n) terms cancel out in denominator
+            sortino_ratio = (mean_return - self.mar) / downside_dev
+            # Annualize the ratio
+            sortino_ratio *= np.sqrt(self.annualization_factor)
+        
+        print(f"DEBUG: sortino_ratio = {sortino_ratio}")
+        
+        # Store metadata
+        self._metadata = {
+            "mean_return": mean_return * self.annualization_factor,
+            "downside_deviation": downside_dev * np.sqrt(self.annualization_factor),
+            "mar": self.mar,
+            "frequency": self.frequency,
+            "n_trades": len(returns),
+            "n_downside_trades": len(returns_arr[returns_arr < self.mar])
+        }
+        
+        return float(sortino_ratio)
+
+    def __call__(
+        self,
+        trade_data: pd.DataFrame,
+        position_sizes: Optional[pd.Series] = None,
+        pnl: Optional[pd.Series] = None,
+        durations: Optional[pd.Series] = None
+    ) -> float:
+        """Calculate the loss value.
+        
+        Args:
+            trade_data: DataFrame containing trade history.
+            position_sizes: Optional series of position sizes.
+            pnl: Optional series of profit/loss values.
+            durations: Optional series of trade durations.
+            
+        Returns:
+            float: The loss value.
+        """
+        try:
+            sortino_ratio = self.calculate_loss(
+                trade_data=trade_data,
+                position_sizes=position_sizes,
+                pnl=pnl,
+                durations=durations
+            )
+            
+            if not np.isfinite(sortino_ratio):
+                logger.warning(f"sortino_ratio returned non-finite value: {sortino_ratio}")
+                # For infinite values, preserve the sign but make it negative for optimization
+                if np.isinf(sortino_ratio):
+                    return -sortino_ratio
+            
+            # Since we want to minimize the negative of the Sortino ratio but the optimizer minimizes,
+            # we need to return the negative of the ratio
+            return -sortino_ratio
+        except ValueError as e:
+            # Re-raise with the same message
+            raise ValueError(str(e))
+
+    def get_metadata(self) -> Dict[str, Any]:
+        """Return metadata from the last calculation.
+        
+        Returns:
+            Dict containing calculation metadata.
+        """
+        return self._metadata.copy()
