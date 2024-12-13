@@ -1,11 +1,13 @@
-# Hyperopt
+# Hyperopter
 
 [![Python Version](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## Overview
 
-Hyperopt is a sophisticated hyperparameter optimization framework designed for trading strategies. It provides a parallel, efficient, and modular architecture for finding optimal parameters that maximize strategy performance metrics like Sharpe ratio.
+Hyperopter is a sophisticated hyperparameter optimization framework designed for trading strategies. It provides a parallel, efficient, and modular architecture for finding optimal parameters that maximize strategy performance metrics like Sharpe ratio, or other loss functions. Hyperparameter optimization is primarily a tool for quant researchers, seeking alpha. This library can sit inside the CI/CD strategy pipeline of an algorithmic trading system, used in combination with other processes like backtesting or Montecarlo simulations to determine whether a particular strategy should be added to the "playbook" or whether it requires further refinement. 
+
+The only way to avoid overfitting, is by the operator (you) using hyperopter correctly. If you hyperparameter optimize over your entire sample you're overfitting. Ideally, you use hyperopter on a small but significant subsample and apply the frozen parameters on a larger OOS backtest, which should only serve to develop conviction to begin with.
 
 ### Key Features
 
@@ -18,7 +20,7 @@ Hyperopt is a sophisticated hyperparameter optimization framework designed for t
 
 ### Current Status
 
-Current Version: 0.1.0 (Development Phase)
+Current Version: 0.1.0 (Development Phase) - as soon as I have time I will implement further loss functions, to allow optimizing for highest Sharpe, highest PnL in period, highest Sortino, highest Calmar, lowest maximum drawdown, and so on. 
 
 ## Quick Start
 
@@ -40,15 +42,16 @@ Required packages:
 
 ```bash
 # Clone the repository
-git clone https://github.com/marwinsteiner/hyperopt.git
-cd hyperopt
+git clone https://github.com/marwinsteiner/hyperopter.git
+cd hyperopter
 
 # Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+conda create -n [give it a name] python=[choose the correct python version, I use 3.12]
+conda activate [the name you gave it]
 
-# Install dependencies
-pip install -r requirements.txt
+poetry init  # click through the menus
+
+# Install dependencies, see pyproject.toml
 ```
 
 ### Basic Usage
@@ -121,6 +124,8 @@ The repository includes a complete example of optimizing a moving average crosso
 - `examples/optimize_moving_average.py`: Example strategy implementation
 - `examples/data/sample_data.csv`: Sample price data
 - `config/moving_average_config.json`: Example configuration
+
+I also use this dummy strategy to write the tests. All system components should work the same regardless of what strategy is being hyperopted.
 
 ## Development
 
