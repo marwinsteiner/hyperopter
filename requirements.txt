@@ -5,3 +5,5 @@ pytest>=7.0.0
 pytest-cov>=4.0.0
 numpy>=1.24.0
 yfinance>=0.2.0
+jsonschema>=4.23.0
+scikit-learn>=1.6.0
